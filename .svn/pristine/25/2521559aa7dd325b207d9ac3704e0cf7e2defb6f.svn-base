@@ -1,0 +1,7 @@
+#add a tool to a user
+def addTool(request):
+	pass
+
+def	updateTool(request):
+	pass
+

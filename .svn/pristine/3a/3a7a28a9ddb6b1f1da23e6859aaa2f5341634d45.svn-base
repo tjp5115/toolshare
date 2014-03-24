@@ -1,0 +1,31 @@
+<div id="toolDisplay">
+
+	<p><strong><b>Name:  </b></strong> {{ tool.name }} </p>
+
+	<p><strong><b>Description:  </b></strong> {{ tool.description }}</p>
+
+	{% if tool.specialInstructions %}	
+	<p><strong><b>Special Instructions:  </b></strong> {{ tool.specialInstructions }}</p>
+	{%else%}
+	<p><strong><b>Special Instructions:  </b></strong> None</p>
+	{%endif%}
+
+	{% if  tool.pickupArrangements %}	
+	<p><strong><b>Pickup Arrangements:  </b></strong> {{ tool.pickupArrangements }}</p>
+	{%else%}
+	<p><strong><b>Pickup Arrangements:  </b></strong> None</p>
+	{%endif%}
+
+	<p><strong><b>Owner:  </b></strong> {{ tool.getOwner }}</p>
+
+	<p><strong><b>Current Owner:  </b></strong> {{ tool.getCurrentOwner }}</p>
+	{% if tool.status %}		
+	<p><strong><b>Status:  </b></strong> {{ tool.status }}</p>
+	{%else%}
+	<p><strong><b>Status:  </b></strong> None</p>
+	{%endif%}
+
+
+
+</div><!-- news -->
+

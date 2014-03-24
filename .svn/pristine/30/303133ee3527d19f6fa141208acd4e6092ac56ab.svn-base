@@ -1,0 +1,87 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from django import forms
+from userProfile import models
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+
+"""
+Process the index page request
+if the user is logged in, display their home page
+else diplay register page
+"""
+def index(request):
+		
+	print("lol1")
+	#check if user logged in
+	logout(request) #temp line for dbug  -- lets have no one every log in
+	if  request.user.is_authenticated():
+		print("lolreg")
+		#this is temp junk to see who is logged in
+		from django.contrib.sessions.models import Session
+		session = Session.objects.get(session_key = request.session.session_key)
+		uid = session.get_decoded().get('_auth_user_id')
+		#show home page
+		return HttpResponse("OMG THIS IS THE BEST PPAGE IM LOGGED IN "+str(User.objects.get(pk =uid)))
+
+	#check to see if the user has submited a form from a previous register
+	if request.method == 'POST':
+		print("lol2")
+		form = RegisterForm(request.POST)
+		if form.is_valid():
+			#process form 
+			#1) insert into DB 
+			if not models.UserProfile.insert(request.POST):
+				errors = form._errors.setdefault("username", ErrorList())
+				errors.append("Name taken sorry =(")
+				return homepage_register(request,form)		
+			#2)log user in 
+			authenticate(username=request.POST['username'],password=request.POST['password'])
+			#3) show new index page
+			return HttpResponse("BEST PAGE NA IM ADDING INTO DB")
+	else:
+		print("lol3")
+		form = RegisterForm()
+	
+	return homepage_register(request,form)
+	
+
+"""
+logged in index page 
+display tools and other fun stuff --
+main page of the site
+"""
+def homepage_user(request, user):
+	template = 'contentUser.html'
+	context = RequestContext(request, {
+	'user': user,
+		})
+	return render(request,template,context)
+	
+"""
+default home page
+register user / login 
+"""
+def homepage_register(request,form):
+	#models.UserProfile.insert(request.REQUEST); i dont know what you are
+	template = 'contentRegister.html'
+	return render(request,template, { 
+			'form': form, 
+		})
+"""
+
+"""
+class RegisterForm(forms.Form):
+    #url = forms.CharField(max_length=100)
+	nameFirst = forms.CharField(max_length=100)
+	nameLast = forms.CharField(max_length=100) 
+	home_address = forms.CharField(max_length=100)
+	zipCode = forms.IntegerField()
+	email = forms.EmailField()
+	password = forms.CharField(max_length=32, widget=forms.PasswordInput)
+	username= forms.CharField(max_length=100)
+
+

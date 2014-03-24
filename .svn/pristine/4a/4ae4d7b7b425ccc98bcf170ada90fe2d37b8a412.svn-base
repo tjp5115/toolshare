@@ -1,0 +1,63 @@
+
+
+
+
+<div id="registration">
+{% if toolAddSuccess %}
+		<h2> Tool has been added </h2>
+{% else %}
+ <h2>Add a Tool</h2>
+ <form id="toolAddForm" action="{%url 'addTool' user%} " method="POST">{%csrf_token %}
+ 	<fieldset>
+			<p>
+			{{form.name.errors}}
+			<label for="id_name">Name:</label>
+			{{form.name}}
+			</p>
+
+			<p>
+			{{form.quantityMax.errors}}
+			<label for="id_quantityMax">Quantity:</label>
+			{{form.quantityMax}}
+			</p>
+
+			<p>
+			{{form.description.errors}}
+			<label for="id_description">Description:</label>
+			{{form.description}}
+			</p>
+
+			<p>
+			{{form.specialInstructions.errors}}
+			<label for="id_specialInstructions">Special Instructions:</label> 
+			{{form.specialInstructions}}
+			</p>
+
+			<p>
+			{{form.availability.errors}}
+			<label for="id_availability">Available for Borrowing:</label>
+			{{form.availability}}
+			</p>
+			<p>
+		<input type="submit" value="Submit" id='sendbuttonAddTool' />
+		</p>
+ 	</fieldset>
+ </form>
+ {% endif %}
+</div>
+<SCRIPT type="text/javascript">
+/*
+if i knew why this works while in here i would write a book
+*/
+$('.fancybox-inner #sendbuttonAddTool').on("click",function(){
+    var form = jQuery(".fancybox-inner #toolAddForm");
+    form.submit(function (e) {
+        //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+        jQuery(".fancybox-inner #registration").load(
+            form.prop('action'),
+            form.serializeArray()
+        );
+        e.preventDefault();
+    });
+}); 
+</script>

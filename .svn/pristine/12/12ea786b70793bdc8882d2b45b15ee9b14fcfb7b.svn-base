@@ -1,0 +1,61 @@
+/** all devices and responsive browser windows **/
+@media screen and (max-width: 800px) {
+
+	#container {
+		width: 100%;
+	}
+	#fancyForm #aligned {
+		width: 100%;
+		float: none;
+		display: block;
+	}
+	#fancyForm #aside {
+		width: 100%;
+		display: block;
+		float: none;
+	}
+	#fancyForm .txtinput, #fancyForm textarea {
+		width: 85%;
+	}
+	#prioritycase {
+		float: left;
+		display: block;
+	}
+	#recipientcase {
+		float: left;
+		display: block;
+		margin-right: 55px;
+	}
+}
+
+
+/* smaller screen dropoff *******/
+@media only screen and (max-width: 550px) {
+ 	#fancyForm .txtinput, #fancyForm textarea {
+		width: 80%;
+	}
+}
+
+/* iPhone Landscape ********/
+@media only screen and (max-width: 480px) {
+	select.selmenu {
+		width: 190px;
+	}
+}
+
+/* iPhone portrait *******/
+@media only screen and (max-width: 320px) {
+
+ 	#fancyForm .txtinput, #fancyForm textarea {
+		width: 70%;
+	}
+	#fancyForm #aligned {
+		overflow: hidden;
+	}
+	select.selmenu {
+		width: 160px;
+	}
+	#recipientcase {
+		margin-right: 30px;
+	}
+}

@@ -1,0 +1,35 @@
+{%if toolDenyReturn%}
+<h2>The Borrower has been notified the tool has not been returned</h2>
+{%elif toolReturnConfimation %}
+<h2>Borrowing complete</h2>
+{%elif awatingConfimation %}
+<h2>You have notified the tool owner that the tool has been returned, Awaiting owner confimation</h2>
+{%elif accept%}
+<h2> You have accepted the request</h2>
+{%else %}
+
+	{% if userRejectRequestValid %}
+		<h2>You have been a jerk and denied a tool. </h2>
+		<h2>keep sharing my pal</h2>
+	{% else %}
+
+
+		<h2>You have denied the request</h2>
+		<div id="container">
+			<form name="hongkiat" id="fancyForm" method="post" action="{%url 'respondRequestDeny' username=username requestID=responseID%}">{%csrf_token %}
+				<div id="wrapping" class="clearfix">
+					<div id="aligned">
+						{{form.denyReason.errors}}
+						<label for="id_denyReason"></label>
+						{{form.denyReason}}
+
+					</div>
+				<div id="buttons">
+					<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+					<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Send" >
+					<br style="clear:both;">
+				</div>
+			</form>
+		</div> 
+	{%endif%}
+{%endif%}

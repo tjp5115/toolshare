@@ -1,0 +1,15 @@
+from django.db import models
+
+# Create your models here.
+class Tool(models.Model):
+    name = models.CharField(max_length = 200)
+    description = models.CharField(max_length = 300)
+    picture = models.CharField(max_length = 100)
+    status = models.CharField(max_length = 100)
+    #owner = models.UserProfile
+    #currentOwner = models.UserProfile
+    availablity = models.BooleanField(False) #should inital be false?
+    pickupArrangements = models.CharField(max_length = 300)
+    quantityTotal = models.IntegerField()
+    specialInstructions = models.CharField(max_length = 300)
+    

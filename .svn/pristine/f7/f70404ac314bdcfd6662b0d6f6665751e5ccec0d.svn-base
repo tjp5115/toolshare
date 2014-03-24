@@ -1,0 +1,54 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render
+from django.contrib.auth.models import User
+#from UserProfile import forms
+
+from django.contrib.auth import authenticate, login
+"""
+Process the index page request
+if the user is logged in, display their home page
+else diplay register page
+"""
+def index(request):
+	from django.contrib.sessions.models import Session
+	session = Session.objects.get(session_key = request.session.session_key)
+	uid = session.get_decoded().get('_auth_user_id')
+		
+	#ask if user logged in
+	if  request.user.is_authenticated():
+	#show home page
+		return HttpResponse("OMG THIS IS THE BEST PPAGE IM LOGGED IN "+str(User.objects.get(pk =uid)))
+	#check to see if the user has submited a form from a previous register
+	if request.method == 'POST':
+		form = registerForm(request.POST)
+		#process form
+		return HttpResponse("BEST PAGE NA IM ADDING INTO DB")
+	else:
+		form = RegisterForm()
+	
+	return homepage_register(request,form)
+	
+
+"""
+logged in index page 
+display tools and other fun stuff --
+main page of the site
+"""
+def homepage_user(request, user):
+	template = 'contentUser.html'
+	context = RequestContext(request, {
+	'user': user,
+		})
+	return render(request,template,context)
+	
+"""
+default home page
+register user / login 
+"""
+def homepage_register(request):
+	models.UserProfile.insert(request.REQUEST);
+	template = 'contentRegister.html'
+	form = forms.registerForm();
+	return render(request,template,context)

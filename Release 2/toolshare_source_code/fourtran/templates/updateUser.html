@@ -1,0 +1,37 @@
+{% if userUpdateSuccess %}
+<h2> User has been updated</h2>
+{% else %}
+<div id="container">
+<form name="hongkiat" id="fancyForm" method="post" action="{%url 'updateUser' username=user%}">{%csrf_token %}
+	<div id="wrapping" class="clearfix">
+		<div id="aligned">
+			{{form.nameFirst.errors}}
+			<label for="id_nameFirst"></label>
+			{{form.nameFirst}}
+
+			{{form.nameLast.errors}}
+			<label for="id_nameLast"></label>
+			{{form.nameLast}}
+
+			{{form.home_address.errors}}
+			<label for="id_home_address"></label>
+			{{form.home_address}}
+			
+			{{form.email.errors}}
+			<label for="id_email"></label> 
+			{{form.email}}
+			
+			{{form.shareZone.errors}}
+			<label for="id_shareZone"></label> 
+			{{form.shareZone}}
+
+		</div>
+	<div id="buttons">
+		<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+		<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Update" >
+		<br style="clear:both;">
+</div>
+</form>
+</div> 
+{%endif%}
+

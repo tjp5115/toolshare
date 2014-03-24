@@ -1,0 +1,309 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from django.contrib import messages
+from tool.models import Tool
+from notifications.models import Notification
+from shareZone.models import ShareZone
+
+#from shareZone.models import // when we create a shareZone model, add here
+
+# Create your models here.
+class UserProfile(models.Model):
+    url             = models.URLField()
+    nameFirst       = models.CharField(max_length = 200)
+    nameLast        = models.CharField(max_length = 200)
+    home_address    = models.TextField()
+    #phone_number   = models.PhoneNumberField()
+    email           = models.CharField(max_length = 200)
+    user            = models.ForeignKey(User, unique = True)
+    shareZone       = models.ForeignKey(ShareZone)
+    numLoans        = models.IntegerField(default = 0)
+    numBorrows      = models.IntegerField(default = 0)
+
+    def __str__(self):
+        return self.nameFirst + " " + self.nameLast
+
+    #insert into DB
+    def insert(post):
+        # Is the user already in the database?
+        if not User.objects.filter(username=post['username']).exists():
+            userDB = User.objects.create_user(post['username'], post['email'], post['password'])
+            print("UserDB = "+ str(userDB))
+            # Create the user
+            UserProfile.objects.create( \
+            nameFirst = post['nameFirst'], \
+            nameLast=post['nameLast'], \
+            home_address = post['home_address'], \
+            email = post['email'], \
+            user = userDB,
+            shareZone = ShareZone.objects.get_or_create(zipCode=post['zipCode'])[0]
+            )
+            # Assign / create the ShareZone
+            print("about to create")
+            mygroup, created = Group.objects.get_or_create(name=post['zipCode'])
+            userDB.groups.add(mygroup)
+            #messages.add_message(request,messages.INFO,"You joined a group!")
+            return True
+
+        else:
+            return False
+
+    #update the DB with user pref
+    def update(user, request):        
+        #user = request.user
+
+        djangoUser = request.user
+        group = djangoUser.groups.all()[0]
+        newGroup, create = Group.objects.get_or_create(name=request.POST['shareZone'])
+
+        user.nameFirst = request.POST['nameFirst']
+        user.nameLast = request.POST['nameLast']
+        user.home_address = request.POST['home_address']
+        user.email = request.POST['email']
+        if group != newGroup:
+            djangoUser.groups.remove(group)
+            djangoUser.groups.add(newGroup)
+        user.save()
+    #change password in DB
+    def changeP(user,request):
+        user.set_password(request.POST['newPass'])
+        user.save()
+    # Gets all of the users in the user's shareZone, not including himself
+    def getShareZone(self):
+        return User.objects.all().filter(
+                groups__name = self.user.groups.all()[0]
+            ).exclude(username = self.user)
+
+    # Increases the borrow counter by one
+    def incrementBorrows(self):
+        self.numBorrows += 1
+        self.save()
+
+    # Increases the loan counter by one
+    def incrementLoans(self):
+        self.numLoans += 1
+        self.save()
+
+    ########################################################################
+    ################### Toollist calls #####################################
+    ########################################################################
+
+    # Gets all of the tools the user has anything to do with
+    def getToolList(self):
+        return sorted(set(list(Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            )) + (list(Tool.objects.all().filter(
+                ownerID = self.user.id
+            )))), key = lambda tool: tool.name)
+
+    # Gets all of the tools that the user owns (lent out or not)
+    def getOwnedTools(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            )
+
+    # Gets all tools that the user is currently borrowing
+    def getBorrowedTools(self):
+        return Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            ).exclude(ownerID = self.user.id)
+
+    # Gets all tools that the user has lent out
+    def getLentTools(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            ).exclude(currentOwnerID = self.user.id)
+
+    # Gets all tool that a user owns which aren't in any sheds
+    def getToolsNotInShed(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            ).filter(
+                coordinator = None
+            )
+
+    ########################################################################
+    ################### Notification calls #################################
+    ########################################################################
+
+    # Check all notifications that could change based on day
+    def checkForNotificationChanges(self):
+        # Check all accepted requests
+        for notification in self.getAcceptedRequests():
+            notification.checkForChanges()
+
+        # Check all waiting requests
+        for notification in self.getWaitingRequests():
+            notification.checkForChanges()
+
+        # Check all active requests
+        for notification in self.getActiveRequests():
+            notification.checkForChanges()
+
+    # Get notifications that a user is waiting on responses for
+    def getPendingRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'pending'
+            )#order_by('timeEnd')
+
+    # Get notifications a user has received and are pending
+    def getReceivedRequests(self):
+        return Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'pending'
+            )
+
+    # Get notifications a user has sent and has received responses to
+    # Either status = accepted or pending
+    def getResponses(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).exclude(
+                status = 'pending'
+            ).exclude(
+                status = 'waiting'
+            ).exclude(
+                status = 'awaitingReturn'
+            ).exclude(
+                status = 'awaitingConfirmation'
+            ).exclude(
+                status = 'archived'
+            ).exclude(
+                status = 'active'
+            )
+
+    # Get accepted borrow requests
+    def getAcceptedRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'accepted'
+            )
+
+    # Get requests that are currently active
+    def getActiveRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'active'
+            )
+
+    # Get requests that are currently waiting to become active
+    def getWaitingRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'waiting'
+            )
+
+    # Get requests that the user needs to return to the lender
+    def getAwaitingReturnRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'awaitingReturn'
+            )
+
+    # Get requests that the user needs to confirm having received
+    # the tool back from the borrower
+    def getAwaitingConfirmationRequests(self):
+        return Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'awaitingConfirmation'
+            )
+
+    # Get all archived notifications associated with a user
+    def getArchivedRequests(self):
+        # Get notifications that user has created
+        lst = list(Notification.objects.all().filter(
+                status = 'archived'
+        ).filter(
+            senderID = self.user.id
+        ))
+
+        # Get notifications that user has received
+        lst.extend(
+            list(Notification.objects.all().filter(
+                status = 'archived'
+            ).filter(
+                receiverID = self.user.id
+            )))
+        return lst
+
+    ########################################################################
+    ################### Coordinator calls ##################################
+    ########################################################################
+
+    # Adds user's tools to a given user's shed
+    def addToolsToShed(self,post):
+        for toolID in post: 
+            if toolID.isdigit():
+                tool = Tool.objects.get(pk=int(toolID))
+                print("inserting: "+ str(tool))
+                tool.setCoordinatorProfile(self)
+                tool.save()
+    #removes tool from shed
+    def removeToolsFromShed(self,post):
+        for toolID in post: 
+            if toolID.isdigit():
+                tool = Tool.objects.get(pk=int(toolID))
+                print("REMOVING: "+ str(tool))
+                tool.removeFromShed(self)
+                tool.save()   
+
+    # Adds all of a user's tools to a given user's shed
+    # Precondition: userProfile is a UserProfile
+    def addAllToolsToShed(self, userProfile):
+        assert isinstance(userProfile, UserProfile)
+        for tool in Tool.objects.filter(ownerID=userProfile.user.id):
+            tool.setCoordinatorProfile(userProfile)
+            tool.save()
+
+     # Returns True iff the user may become a coordinator
+    def canBecomeCoordinator(self):
+        return Tool.objects.filter(ownerID = self.user.id).count() > 0
+
+    # Adds all of this user's tools to the shed, making him a shed coordinator
+    # Precondition: user has tools
+    def becomeCoordinator(self):
+        assert Tool.objects.all().filter(ownerID = self.user.id).count() > 0, \
+        "You must have tools to become a coordinator"
+        self.addAllToolsToShed(self)
+
+    # Returns true iff this user is currently coordinating any tools
+    def isCoordinator(self):
+        return self.user.tool_set.count() > 0
+
+    # Returns a list of the tools the user is currently coordinating
+    def getShedTools(self):
+        return self.user.tool_set.all()
+
+    # Gets all coordinators in this user's sharezone
+    def getShedCoordinators(self):
+        return list(set([x.getCoordinator() for x in Tool.objects.filter(
+                shareZone = self.shareZone
+            ).exclude(
+                coordinator = None
+            ).exclude(
+                coordinator = self.user
+            )]))
+
+    # Removes the user's status as shed coordinator
+    # Postconditions: all relevant notifications's receiverID are changed to
+    # each tool owner's ID, and each tool no longer has a coordinator
+    def removeCoordinatorStatus(self):
+        # Cancel reservations? not sure
+        # Change receiver of all notifications from coordinator to tool owner
+        # Then, set coordinator to none (return to home)
+        print(self.user.tool_set.all() )
+        for tool in self.user.tool_set.all():
+            for notification in Notification.objects.all().filter(toolID= tool.pk):
+                notification.receiverID = tool.ownerID
+                notification.save()
+            tool.coordinator = None
+            tool.save()

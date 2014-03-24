@@ -1,0 +1,15 @@
+from django.template import RequestContext
+from django.shortcuts import render
+from django.contrib.auth.models import User
+
+
+def index(request, username):
+	template = 'contentShareZone.html'
+	u = request.user
+	print(u)
+	context = RequestContext(request, {
+	'request' : request,
+	'user' : u,
+	'shareZone' : ', '.join([p.username for p in User.objects.all().filter(groups__name=u.groups.all()[0])])
+		})
+	return render(request,template,context)

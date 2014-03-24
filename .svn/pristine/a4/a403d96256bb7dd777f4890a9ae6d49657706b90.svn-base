@@ -1,0 +1,42 @@
+
+
+<style> tr:hover td{color:#FFF;} </style>
+{%if toolList %}
+<table id="tableToolList" class="tablesorter" summary="Meeting Results">
+
+    <thead>
+    	<tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+        </tr>
+    </thead>
+    <tbody>
+	{% for tool in toolList %}	
+
+    	<tr>
+   	     <td>	
+		{% if not guest %}
+		<a class="updateTool" href="{%url 'updateTool' username=user toolID=tool.id%}"> {{tool.name}}</a> 
+		{%else%}
+		<a class="displayTool" href="{%url 'displayTool' username=username toolID=tool.id%}"> {{tool.name}}</a>
+		{%endif%}
+
+		</td>
+		<td class="toolDesc">{{tool.description}}</td>
+		<td>
+		{%if not guest%}
+			<span  class= 'bold'><a class = "deleteTool" href="{%url 'deleteTool' username=user toolID=tool.id%}" onclick="return confirm('Are you sure want to delete one of your tools?');">Delete Tool </a></span>
+		{%else%}
+		<span class='bold'><a class="borrowTool" href="{%url 'borrowTool' username=username toolID=tool.id%}">Borrow Tool</a></span>
+		{%endif%}
+		</td>
+        </tr>
+	{% endfor%}
+
+    </tbody>
+</table>
+{% else %}
+<p>You have no tools for this Tool Category.</p>
+{%endif%}
+
+

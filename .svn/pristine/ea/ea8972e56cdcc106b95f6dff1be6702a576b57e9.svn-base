@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ UserProfile.name }} amazing blog{% endblock %}
+
+{% block content %}
+<form method="POST" action=".">{% csrf_token %}
+  First Name: <input type="text" name="username" size="15" /><br />
+  Last Name: <input type="text" name="username" size="15" /><br />
+  Your Email: <input type="text" name="username" size="30" /><br />
+  Password: <input type="password" name="passwort" size="15" /><br />
+  <div align="center">
+    <p><input type="submit" value="Login" /></p>
+  </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+from django.http import HttpResponse
+
+def index(request, username):
+	return HttpResponse("hi sharezone")
+
+
+	"""
+	template = 'contentShareZone.html'
+	u = request.user
+	context = RequestContext(request, {
+	'request' : request,
+	'user' : u
+		})
+	print("we rendered sharezone!")
+	return render(request,template,context)
+	"""

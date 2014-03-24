@@ -1,0 +1,9 @@
+from django.conf.urls import patterns,  url
+from notifications import views
+
+urlpatterns = patterns('',
+	url(r'^(?P<toolID>\d+)$',views.borrowTool,name='borrowTool'),
+	url(r'^respond/(?P<requestID>\d+)/accept',views.respondRequest,{'accept':True},name="respondRequestAccept"),
+	url(r'^respond/(?P<requestID>\d+)/deny',views.respondRequest,{'accept':False},name="respondRequestDeny"),
+	url(r'^response/(?P<requestID>\d+)/delete',views.deleteResponse,name="deleteResponse"),
+)

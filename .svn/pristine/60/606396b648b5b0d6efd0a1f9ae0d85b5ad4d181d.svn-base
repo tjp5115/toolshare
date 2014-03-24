@@ -1,0 +1,5 @@
+{%if accept %}
+<h2> You have accepted the request</h2>
+{%else%}
+<h2> You have denied the request</h2>
+{%endif%}

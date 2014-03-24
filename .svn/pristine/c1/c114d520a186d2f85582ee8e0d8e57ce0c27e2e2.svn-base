@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Profile Options</h3>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="updateUser" href="{%url 'updateUser' user%}">Edit Profile</a></li>
+				</ul>
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h2>Your Notifications</h2>
+				<div id="notifications">
+				{%if activeRequests%}
+    				<h3>Your tools being borrowed:</h3>
+					{% for request in activeRequests %}
+               			<div class="notify">
+ 		    				Tool: <span class="notifyData">{{ request.getTool }}</span>  
+               				Tool Owner: <span class="notifyData">{{request.getOwner}} </span> 
+               				Date Range: <span class="notifyData">{{request.getDateRange}}</span>
+               			</div>
+    				{% endfor %}
+				{%endif%}
+				{%if receivedRequests%}
+					<h3>Requests to borrow your tools:</h3>
+    				{% for request in receivedRequests %}
+               			<div class="notify">
+               				Tool Owner: <span class="notifyData">{{request.getOwner}} </span>
+							<span class="notifyData">
+               					<span class="notifyData">
+               						<a class="request" href="{%url 'respondRequestAccept' username=user requestID=request.id%}">Accept</a> 
+               					</span>
+               					<span class="notifyData">
+               						<a class="request" href="{%url 'respondRequestDeny' username=user requestID=request.id%}">Deny</a> 
+	               				</span>
+               			</span>
+               			</div>
+    				{% endfor %}
+   				{%endif%}
+					
+				{%if responses%}
+					<h3>Responses to your requests:</h3>
+					{% for response in responses %}
+               			<div class="notify">
+               				Tool: <span class="notifyData">{{ response.getTool }}</span>  
+               				Tool Owner: <span class="notifyData">{{response.getOwner}} </span> 
+               				Date Range: <span class="notifyData">{{response.getDateRange}}</span>
+
+							<span class="notifyData"><a class="request" href="{%url 'deleteResponse' requestID=response.id username=user%}">Delete Response</a> </span>
+               			</div>
+    				{% endfor %}
+    			{%endif%}
+
+				{%if pendingRequests%}
+    				<h3>Your pending borrow requests:</h3>
+					{% for request in pendingRequests %}
+               			<div class="notify">
+               				Tool: <span class="notifyData">{{ request.getTool }}</span>  
+               				Tool Owner: <span class="notifyData">{{request.getOwner}} </span> 
+               				Date Range: <span class="notifyData">{{request.getDateRange}}</span>
+               			</div>
+    				{% endfor %}
+				{%endif%}
+
+
+				{%if getWaitingRequests%}
+    				<h3>The tools you will be borrowing:</h3>
+					{% for request in getWaitingRequests %}
+					    <div class="notify">
+               			    Tool: <span class="notifyData">{{ request.getTool }}</span>  
+               				Tool Owner: <span class="notifyData">{{request.getOwner}} </span> 
+               				Date Range: <span class="notifyData">{{request.getDateRange}}</span>
+               			</div>
+    				{% endfor %}
+				{%endif%}
+
+				{%if getAwaitingReturnRequests%}
+    				<h3>Tools you should have returned:</h3>
+					{% for request in getAwaitingReturnRequests %}
+               			<div class="notify">
+               				Tool:<span class="notifyData"> {{ request.getTool }}  </span>
+               				Return too:<span class="notifyData">{{request.getOwner}} </span>
+               				I have returned the tool:
+               				<span class="notifyData">
+               					<a class="request" href="{%url 'respondAwaitingReturnRequestAccept' username=user requestID=request.id%}">Accept</a>
+               				</span>
+               			</div>
+    				{% endfor %}
+				{%endif%}
+
+				{%if getAwaitingConfirmationRequests%}
+    				<h3>Confirm tool(s) have been returned:</h3>
+					{% for request in getAwaitingConfirmationRequests %}
+                 			<div class="notify">
+	                 			Tool: <span class="notifyData"> {{ request.getTool }}  </span>
+                 				The tool has been returned by: <span class="notifyData"> {{request.getSender}} </span>
+               				<span class="notifyData" >
+               					<span class="notifyData" >
+               						<a class="request" href="{%url 'respondConfirmReturn' username=user requestID=request.id%}">Confirm</a> </span>
+               					<span class="notifyData" >
+               						<a class="request" href="{%url 'respondDenyReturn' username=user requestID=request.id%}">Deny</a>
+               					</span>
+               				</span>
+               			</div>
+    				{% endfor %}
+				{%endif%}
+
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

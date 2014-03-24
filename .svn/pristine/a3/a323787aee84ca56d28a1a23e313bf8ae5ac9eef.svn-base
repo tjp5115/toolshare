@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+	<div id="toolFormAddContent" style="display:none">
+	</div>
+	<div id="toolFormUpdateContent" style="display:none">
+	</div>
+<div id="cA">
+		<div class="Ctopleft"><h3>Tool Options</h3></div>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="addTool" href="{%url 'addTool' user%}">Add Tool</a></li>
+						<br></br>
+						<li><a href="{%url 'toolListLent' user%}">Lent Tools</a></li>
+						<li><a href="{%url 'toolListOwned' user%}">Owned Tools</a></li>
+						<li><a href="{%url 'toolListBorrowed' user%}">Borrowed Tools</a></li>
+				</ul>
+			
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+					<h3>{{typeOfDisplay}} tools ({{numTools}}) {{displayExplaination}}</h3>
+				<div class="news">
+					{% include "toolList.html" with toolList=toolList guest=False %}
+				</div>
+			</div><!-- cB1 -->
+
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+
+{% endblock %}
+

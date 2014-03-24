@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+	<div class="Ctopleft"></div>
+	<br>
+	<h1>Shed Options</h1>
+
+	{%if not isCoordinator %}
+		<div id="sideMenu">
+			<ul>
+				<li><a class="fancyLoadForm confirmCoorBecome" href="{% url 'toggleCoordinator' user%}">Become a Shed Coordinator</a></li>
+			</ul>
+		</div>
+	{%else%}
+		<div id="sideMenu">
+			<ul>
+				<li><a class="fancyLoad " href="{% url 'viewShed' user%}">View My Shed</a></li>
+				<li><a class="fancyLoadForm " href="{%url 'addToolsToShed' username=user coordinator=user%}">Add Tools to My Shed</a></li>
+				<br></br>
+				<li><a class="confirmCoorRemove" href="{% url 'toggleCoordinator' user%}">Delete My Shed </a></li>
+			</ul>
+		</div>
+	{%endif%}
+</div><!-- cA -->
+<div id="cB">
+	<div class="Ctopright"></div>
+	<div id="cB1">
+	<h1>Shed Coordinators</h1><br />
+		{%if shedCoordinators%}
+	    	{% for shedCoor in shedCoordinators %}
+	    	<h2> <a href="{% url 'homepage_user' shedCoor%}">{{shedCoor}}'s </a> Shed</h2>
+	    	<table id="tableToolList" class="tablesorter {{shedCoor}}" summary="Meeting Results">
+		    <thead>
+		    	<tr>
+		            <th scope="col">Owner</th>
+		            <th scope="col">Name</th>
+		            <th scope="col">Description</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+			{% for tool in shedCoor.get_profile.getShedTools %}
+		    	<tr>
+		    	<td class="ownerName" > 
+		    		<a href="{% url 'homepage_user' tool.getOwner%}">{{tool.getOwner}}</a>
+		    	</td>	
+		   	   
+		   	    <td class="toolName" >	
+					<a 		
+							class="displayTool" 
+							href="{%url 'displayTool' username=user toolID=tool.id%}" > 
+							{{tool.name}}
+					</a>
+				</td>
+				
+				<td class="toolDesc">
+					{{tool.description}}
+				</td>
+				
+				<td class="toolActionFloat">
+					<span class='bold'>
+						<a class="borrowTool" href="{%url 'borrowTool' username=user toolID=tool.id%}">Borrow</a>
+					</span>
+				</td>
+		       
+		        </tr>
+
+			{% endfor%}
+			</tbody>
+			</table>
+			<h3 class="underline margin-left30">
+				<a class="fancyFromDiv" href="{%url 'addToolsToShed' username=user coordinator=shedCoor%}">Add me to {{shedCoor.username}}'s Shed</a>
+				<a class="fancyFromDiv margin-left15" href="{%url 'removeToolsToShed' username=user coordinator=shedCoor%}">Remove my tools from {{shedCoor.username}}'s Shed</a>
+			</h3>
+
+			<script type='javascript/text'>
+				$(".{{user}}").tablesorter();
+			</script>
+			<br></br>
+			{% endfor %}
+		{%else%}
+		<p>&nbsp;</p>
+		<p>There are no shed coordinators</p>
+		{%endif%}
+
+	</div><!-- cB1 -->
+</div><!-- cB -->
+<div class="Cpad">
+	<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+</div><!-- Cpad -->
+
+<div id="dialog" title="Confirmation Required">
+  <p>Are you sure about this?</p>
+  <p>You will need to return all tools</p>
+  <p>in your shed to their owners</p>
+</div>
+<script type="text/javascript">
+
+  $(".confirmCoorRemove").click(function(e) {
+    e.preventDefault();
+    var targetUrl = $(this).attr("href");
+
+    $("#dialog").dialog({
+      buttons : {
+        "Confirm" : function() {
+        	 $(this).dialog("close");
+        	  var url = $(".confirmCoorRemove").attr('href');
+		    //alert(url);
+		    jQuery("#fancyUpdateContent").load(
+		        url,
+        		function(){
+           	 	//alert('made it to inner function');
+            	var updateData = $('#fancyUpdateContent').html();
+            	$.fancybox(updateData,
+            	{
+               	afterClose  :  function() {
+                    window.location.reload(true);
+                }
+            	});
+        }
+    );
+    return false;
+        },
+        "Cancel" : function() {
+          $(this).dialog("close");
+        }
+      }
+    });
+
+    $("#dialog").dialog("open");
+  });
+</script>
+{% endblock %}

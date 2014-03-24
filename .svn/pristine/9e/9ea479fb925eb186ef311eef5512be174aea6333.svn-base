@@ -1,0 +1,241 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from shareZone.models import ShareZone
+
+# A reservation represents a date range that a tool is unable to be borrowed
+# This can happen for two reasons:
+#   1. The owner wishes to use it for that time range
+#   2. Somebody has reserved the tool and the owner has agreed
+class Reservation(models.Model):
+    dateStart = models.DateField()
+    dateEnd   = models.DateField()
+
+    # Returns whether a given day is reserved or not
+    # This never needs to be called, but the logic is good to have
+    def isDateReserved(self, day):
+        return day >= self.dateStart and day <= self.dateEnd
+
+    def __str__(self):
+        return  "Reserved from " + str(self.dateStart) + " to " + str(self.dateEnd)
+
+# A tool represents a user's tool and all information needed to borrow it.
+# It is aware of its current and original owner
+class Tool(models.Model):
+    name                = models.CharField(max_length = 200)
+    description         = models.CharField(max_length = 300)
+    status              = models.CharField(max_length = 100)
+    ownerID             = models.IntegerField()
+    currentOwnerID      = models.IntegerField()
+    availability        = models.BooleanField(False) #should inital be false?
+    pickupArrangements  = models.CharField(max_length = 300)
+    quantityCurr        = models.IntegerField()
+    quantityMax         = models.IntegerField()
+    specialInstructions = models.CharField(max_length = 300)
+    reservations        = models.ManyToManyField(Reservation)
+    shareZone           = models.ForeignKey(ShareZone)
+    coordinator         = models.ForeignKey(User, default = None, blank = True, null = True, on_delete=models.SET_NULL)
+    numBorrowed         = models.IntegerField(default = 0)
+
+    # Returns a string represntation of the tool
+    def __str__(self):
+        return self.name + ": " + self.description + ". available: " + str(self.availability)
+    
+    # Add a reservation to the Tool's list of reservations
+    # dateStart: (date object) the first day of the reservation
+    # dateEnd:   (date object) the last day of the reservation
+    # precondition: the reservation must not conflict with existing ones
+    def addReservation(self, dateStart, dateEnd):
+        # The tool better be available!
+        assert not self.isDateRangeReserved(dateStart, dateEnd),\
+        "The tool cannot be reserved for " + str(dateStart) + " through " + \
+        str(dateEnd) + " because there is a conflicting reservation"
+
+        # If the dates are backward, fix them
+        if dateStart > dateEnd:
+            dateStart, dateEnd = dateEnd, dateStart
+
+        reservation = Reservation(dateStart = dateStart, dateEnd = dateEnd)
+        reservation.save()
+        self.reservations.add(reservation)
+        self.save()
+
+    # Returns true if the tool has a future reservation
+    def hasFutureReservation(self):
+        return self.reservations.all().filter(
+            dateEnd__gte = timezone.datetime.today().date()
+        ).count() > 0
+
+    # Returns whether the given day is reserved already
+    def isDayReserved(self, day):
+        return self.reservations.all().filter(
+            dateStart__lte = day
+        ).filter(
+            dateEnd__gte = day
+        ).count() > 0
+
+    # Returns whether the given date range contains a reservation
+    def isDateRangeReserved(self, start, end):
+        # If the start is greater than a reservation's start date
+        # and less than a reservation's end date, it conflicts
+        # The same principle applies to the end date given
+        # The third case is the start is less than the beginning
+        # of the reservation, and the end is past the end
+        return self.reservations.all().filter(
+            dateStart__lte = start
+        ).filter(
+            dateEnd__gte = start
+        ).count() + self.reservations.all().filter(
+            dateStart__lte = end
+        ).filter(
+            dateEnd__gte = end
+        ).count() + self.reservations.all().filter(
+            dateStart__gte = start
+        ).filter(
+            dateEnd__lte = end
+        ).count() > 0
+
+    # Returns a list of all reserved days is json format, for use with datepicker
+    def getReservedDays(self):
+        dthandler = lambda obj: obj.isoformat()
+        dates = []
+        for reservation in self.reservations.all():
+            for date in range(int ((reservation.dateEnd - reservation.dateStart).days) + 1):
+                dates.append(reservation.dateStart + timezone.timedelta(date))
+
+        import json
+        print(json.dumps(dates, default=dthandler))
+        return json.dumps(dates, default=dthandler)
+
+    # Rejected all pending notifications associated with this tool
+    def deleteNotifications(self):
+        assert not self.hasFutureReservation()
+        from notifications.models import Notification
+        for notification in Notification.objects.all().filter(
+                toolID = self.id
+            ).filter(
+                status = 'pending'
+            ):
+            notification.setRejected("The tool's owner removed this tool from ToolShare.")
+
+    def borrow(self):
+        """
+        is this necessary?
+        """ 
+        pass
+
+    # Lends the tool to the User indicated by receiverID
+    def lend(self, receiverID):
+        self.currentOwnerID = receiverID
+        self.save()
+
+    # Increases the borrowed counter by one
+    def incrementBorrowed(self):
+        self.numBorrowed += 1
+        self.save()
+
+    # Updates the tool indicated by toolID with the information in the request object
+    def update(request, toolID):
+        #print("THE USER IS:")
+        #print(request.user.id)
+        #print(UserProfile.objects.all().filter(user = request.user.id)[0])
+        tool = Tool.objects.get(pk = toolID)
+        tool.name = request.POST['name']
+        tool.description = request.POST['description'] 
+            #picture =request.POST['name'],
+            #status =request.POST['name'],
+
+        # To avoid issue with not checking the checkbox
+        if 'availability' not in request.POST:
+            tool.availability = False
+        else:
+            tool.availability = request.POST['availability']
+
+            #pickupArrangements = request.POST[''],
+        if int(request.POST['quantityMax']) <= 0:
+            models.Tool.objects.delete(pk = toolID)
+        tool.quantityMax = int(request.POST['quantityMax'])  
+        tool.specialInstructions = request.POST['specialInstructions']   
+        tool.pickupArrangements = request.POST['pickupArrangements']
+        tool.save()
+
+    def deleteTool(request,toolID):
+        tool = Tool.objects.get(pk = toolID)
+        #check if the current owner is the original owner and does not have a future reservation, if so a tool can be deleted
+        if (tool.ownerID == tool.currentOwnerID):
+            if tool.hasFutureReservation():
+                return 2
+            else:
+                tool.deleteNotifications()
+                tool.delete()
+                return 1
+        else:
+            return 3
+
+
+    # Returns the tool to its original owner
+    def returnToOwner(self):
+        self.currentOwnerID = self.ownerID
+        self.save()
+
+    # Gets the User Profile of the tool's owner
+    def getOwner(self):
+        return User.objects.get(pk=self.ownerID)
+
+    # Gets the User Profile of the tool's owner
+    def getCurrentOwner(self):
+        return User.objects.get(pk=self.currentOwnerID)
+
+    # Inserts a tool into the database using the information in the request object
+    def insert(request):
+        #print("THE USER IS:")
+        #print(request.user.id)
+        #print(UserProfile.objects.all().filter(user = request.user.id)[0])
+		
+        from userProfile.models import UserProfile
+
+        owner = UserProfile.objects.all().filter(user = request.user.id)[0]
+
+        # To avoid issue with not checking the checkbox
+        if 'availability' not in request.POST:
+            availability = False
+        else:
+            availability = request.POST['availability']
+
+        Tool.objects.create(
+            name = request.POST['name'], 
+            description = request.POST['description'], 
+            #picture =request.POST['name'],
+            #status =request.POST['name'],
+            ownerID = request.user.id,
+            currentOwnerID = request.user.id,
+            availability = availability,
+            pickupArrangements = owner.home_address, 
+            quantityCurr = request.POST['quantityMax'], 
+            quantityMax = request.POST['quantityMax'],  
+            specialInstructions = request.POST['specialInstructions']  
+         ) 
+
+    ########################################################################
+    ################### Coordinator calls ##################################
+    ########################################################################
+
+    # Adds the tool to the coordinators shed (coordinator is a User object)
+    def addToShed(self, coordinator):
+        self.coordinator = coordinator
+        self.save()
+
+    # Returns true if the tool is currently in a shed
+    def isInShed(self):
+        return self.coordinator != None
+
+    # Returns the tool's shed coordinator (User), or None if not in a shed
+    def getCoordinator(self):
+        return self.coordinator
+
+    # Returns the User Profile of the shed's coordinator, or None if not in a shed
+    def getCoordinatorProfile(self):
+        if self.coordinator != None:
+            return self.coordinator.get_profile()
+        else:
+            return None

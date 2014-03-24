@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css" />
+	<title>ToolShare</title>
+</head>
+
+<body>
+		<div id="header">
+			<form method='post' action='login.html'>
+				<label for="username">Subject:</label>
+   				<input id="username" type="text" name="username" maxlength="100" />
+				<label for="password">password:</label>
+				<input type="password" name="password" id="password" />	
+				<input type="submit" value="Login ?">			
+			</form>
+	</div>
+    <div id="sidebar">
+        {% block sidebar %}
+        {% endblock %}
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

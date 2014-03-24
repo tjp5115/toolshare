@@ -1,0 +1,60 @@
+from django.db import models
+
+MAX_RESULTS = 5
+
+# Create your models here.
+class ShareZone(models.Model):
+	zipCode = models.CharField(max_length = 5)
+
+	# Returns all user profiles in this sharezone
+	def getAllUserProfiles(self):
+		return self.userprofile_set.all()
+
+	# Returns all tools in this sharezone
+	def getAllTools(self):
+		return self.tool_set.all()
+
+	# Returns the number of users in this sharezone
+	def getNumUsers(self):
+		return self.userprofile_set.all().count()
+
+	# Returns the number of tools in this shaerzone
+	def getNumTools(self):
+		return self.tool_set.all().count()
+
+	# Returns the MAX_RESULTS most active lenders in this sharezone
+	def getActiveLenders(self):
+		return self.userprofile_set.all().order_by('-numLoans')[:MAX_RESULTS]	
+	
+	# Returns the MAX_RESULTS most active borrowers in this sharezone
+	def getActiveBorrowers(self):
+		return self.userprofile_set.all().order_by('-numBorrows')[:MAX_RESULTS]
+
+	# Returns the MAX_RESULTS most used tools in this sharezone
+	def getMostUsedTools(self):
+		return self.tool_set.all().order_by('-numBorrowed')[:MAX_RESULTS]
+
+	# Returns the average number of borrows/loans per user
+	def getLoansPerUser(self):
+		return "{0:.2f}".format(
+			float(sum([i.numLoans for i in self.userprofile_set.all()])) /\
+			 self.userprofile_set.all().count() \
+			 if self.userprofile_set.all().count() != 0 else 0.0
+		)
+
+	# Returns the average number of borrows/loans per tool
+	def getLoansPerTool(self):
+		return "{0:.2f}".format(
+			float(sum([i.numBorrowed for i in self.tool_set.all()])) /\
+			 self.tool_set.all().count() \
+			 if self.tool_set.all().count() != 0 else 0.0
+		 )
+
+	# Returns the average number of tools per user
+	def getToolsPerUser(self):
+		return "{0:.2f}".format(
+			float(self.tool_set.all().count()) / self.userprofile_set.all().count() \
+			if self.userprofile_set.all().count() != 0 else 0.0
+		)
+
+

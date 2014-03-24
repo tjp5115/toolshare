@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Different Title</h3>
+			<p class="testimonial"><img src="{{STATIC_URL}}images/testi_skuola.jpg" alt="Skuola Screenshot Piece" width="87" height="100" class="leflo" />
+			Maybe this can be something. It looks nice wihtha  picture but not with anything else
+			</p>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Notifications</h3>
+				<div class="messages">
+					{% if messages %}
+						<ul class="messages">
+    						{% for message in messages %}
+    							{% ifequal message.tags "tool info" %}
+                						<p>{{ message }}</p>
+            						{% endifequal %}
+    						{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+				<div class="news">
+					<p>{{user}} wants Chipotle Shrimp not Chicken Bianco!!</p>
+					<p>Grrr.... </p>
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

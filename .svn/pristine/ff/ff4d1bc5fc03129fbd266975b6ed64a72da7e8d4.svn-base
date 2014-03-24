@@ -1,0 +1,57 @@
+
+
+<div class="updateUser" id="registration">
+		{% if userUpdateSuccess %}
+		<h2> User has been updated</h2>
+		{% else %}
+ <h2>Update User</h2>
+ <form id="userUpdateForm" action="{%url 'updateUser' username=user%} " method="POST">{%csrf_token %}
+ 	<fieldset>
+			<p>
+			{{form.nameFirst.errors}}
+			<label for="id_nameFirst">First Name:</label>
+			{{form.nameFirst}}
+			</p>
+			<p>
+
+			{{form.nameLast.errors}}
+			<label for="id_nameLast">Last Name:</label>
+			{{form.nameLast}}
+			</p>
+			<p>
+
+			{{form.home_address.errors}}
+			<label for="id_home_address">Home Address:</label>
+			{{form.home_address}}
+			</p>
+			<p>
+			{{form.email.errors}}
+			<label for="id_email">Email:</label> 
+			{{form.email}}
+			</p>
+			<p>
+<input type="submit" value="Submit" id="sendbuttonUpdateUser" />
+</p>
+ 	</fieldset>
+
+
+ </form>
+ {% endif %}
+</div>
+<SCRIPT type="text/javascript">
+/*
+if i knew why this works while in here i would write a book
+*/
+$('.fancybox-inner #sendbuttonUpdateUser').on("click",function(){
+    var form = jQuery(".fancybox-inner #toolUpdateForm");
+    form.submit(function (e) {
+        //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+        jQuery(".fancybox-inner #registration").load(
+            form.prop('action'),
+            form.serializeArray()
+        );
+        e.preventDefault();
+    });
+});
+</script>
+

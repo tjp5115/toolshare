@@ -1,0 +1,14 @@
+from django.db import models
+from django.contrib.auth.models import User
+#from shareZone.models import // when we create a shareZone model, add here
+
+# Create your models here.
+class UserProfile(models.Model):
+    url = models.URLField()
+    name = models.CharField(max_length = 200)
+    home_address = models.TextField()
+    #phone_numer = models.PhoneNumberField()
+    email = models.CharField(max_length = 200)
+    user_id = models.CharField(max_length = 100, unique=True)
+    #user = models.ForeignKey(User, unique=True)
+    #shareZone = models.shareZone // reference to shareZone would go here

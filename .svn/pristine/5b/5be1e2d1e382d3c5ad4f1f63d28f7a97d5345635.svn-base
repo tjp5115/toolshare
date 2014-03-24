@@ -1,0 +1,10 @@
+# Create your views here.
+from django.shortcuts import render
+
+
+def index(request,username):
+	template = 'contentToolList.html'
+	context = {
+		'user' :request.user 
+	}
+	return render(request,template,context)

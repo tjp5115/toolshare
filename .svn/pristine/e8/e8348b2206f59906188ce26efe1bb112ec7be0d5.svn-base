@@ -1,0 +1,29 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render,redirect
+from django.contrib.auth.models import User
+from django import forms
+from userProfile import models
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+
+#add a tool to a user
+def addTool(request,username):
+	template = 'addTool.html'
+	context = RequestContext(request,{ 
+			'request' : request,
+			})
+	return render(request,template,context)
+def	updateTool(request):
+	return HttpRequest("hi update a tool")
+
+class addToolForm(forms.Form):
+	name= forms.CharField(max_length = 200)
+	description = forms.CharField(max_length = 300)
+	#picture = forms.CharField(max_length = 100) #add later -- too hard
+	quantityMax= forms.IntegerField()
+	specialInstructions = forms.CharField(max_length = 300,required=False)
+			
+
+

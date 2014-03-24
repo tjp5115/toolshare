@@ -1,0 +1,40 @@
+
+
+{% if toolBorrowSuccess %}
+<h2> The tool's owner has been notified of your request.</h2>
+{% else %}
+ <h2>Borrow Tool</h2>
+<div id="container">
+<form name="hongkiat" id="fancyForm" method="post" action="{%url 'borrowTool' username=user toolID=tool.id%}">{%csrf_token %}
+	<div id="wrapping" class="clearfix">
+		<div id="aligned">
+
+		{{form.timeStart.errors}}
+		<label for="id_timeStart"></label>
+		{{form.timeStart}}
+
+
+		{{form.timeEnd.errors}}
+		<label for="id_timeEnd"></label>
+		{{form.timeEnd}}
+
+		{{form.reason.errors}}
+		<label for="id_reason"></label>
+		{{form.reason}}
+		
+		</div>
+	<div id="buttons">
+		<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+		<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Borrow" >
+		<br style="clear:both;">
+</div>
+</form>
+</div> 
+{%endif%}
+<script type="text/javascript">
+//links the available days to the .timeStart class
+var jsonOBJ = JSON.parse('{{ tool.getReservedDays|escapejs}}'); 
+$(".timeStart").data('dates', jsonOBJ);
+
+
+</script>

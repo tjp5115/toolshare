@@ -1,0 +1,66 @@
+from django.db import models
+from django.utils import timezone
+from tool.models import Tool
+
+"""
+Represents a notification pertaining to borrowing a tool.
+
+status: a notification may have four states:
+    'pending'   : the request is awaiting reply
+    'accepted'  : the request has been approved
+    'rejected'    : the request have been rejected
+    'archived'  : the request has completed its lifecycle, remaining in the
+                  database for future reference (if desired + implemented)
+
+description     : the notification's description ('I need to fix my door')
+senderID        : the primary key of the sending user (the borrower)
+receiverID      : the primary key of the receiving user (the lender)
+toolID          : the primary key of the tool in question
+date            : the date that the notfication was last updated
+"""
+class Notification(models.Model):
+    status      = models.CharField(max_length = 200)
+    description = models.CharField(max_length = 200)
+    senderID    = models.IntegerField()
+    receiverID  = models.IntegerField()
+    toolID      = models.IntegerField()
+    timeStart   = models.DateField()
+    timeEnd     = models.DateField()
+
+    def __str__(self):
+        return "Type: " + self.status + ", description: " + \
+            self.description + ", sender: " + str(self.senderID) + \
+                ", receiver: " + str(self.receiverID) + ", tool: " + \
+                    str(Tool.objects.get(pk=self.toolID))
+
+    # Inserts a notification into the database using the information in the request object
+    def insert(request,toolID,receiverID):
+        tool = Tool.objects.get(pk = toolID)
+        # Ensure that the receiver of the request actually holds the tool being requested.
+        #self.assertEqual(tool.ownerID, receiverID)
+        #self.assertEqual(tool.ownerID, tool.currentOwnerID)
+
+        Notification.objects.create(
+            status      = 'pending', 
+            description = request.POST['reason'], 
+            senderID    = request.user.id,
+            timeStart   = request.POST['timeStart'],
+            timeEnd     = request.POST['timeEnd'],
+            receiverID  = receiverID,
+            toolID      = toolID,
+        ) 
+    # Accepts a notification (also updates its date)
+    def accept(self):
+        self.status = 'accepted'
+        self.save()
+        #self.date = timezone.now()
+
+    # Accepts a notification (also updates its date)
+    def reject(self):
+        self.status = 'rejected'
+        self.save()
+        #self.date = timezone.now() 
+    #archives the notification for statistic purposes
+    def archive(self):
+        self.status = 'archived'
+        self.save()

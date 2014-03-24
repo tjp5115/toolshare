@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ToolShare</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<link rel="stylesheet" media="screen" href="{{STATIC_URL}}style.css" />
+<script type="text/javascript" src="{{STATIC_URL}}fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}tablesorter/jquery.tablesorter.js"></script> 
+<link rel="stylesheet" href="{{STATIC_URL}}fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+</head>
+
+<body>
+	<div id="fancyUpdateContent" style="display:none">
+	</div>
+<div id="daddy">
+	<div id="header">
+			<div id="logo"><a href="./"><img src="{{STATIC_URL}}images/logo.gif" alt="Tool Share" width="318" height="85" /></a><span id="logo-text"><a href="./">ToolShare</a></span></div><!-- logo -->
+		<div id="menu">
+				<ul>
+			 	{% if user.is_authenticated %}
+				<li><a href="{% url 'index' %}" id="active">Home</a></li>
+				<li><a href="{% url 'toolListAll' user %}">Tools</a></li>
+				<li><a href="{% url 'shareZone' user %}">ShareZone</a></li>
+				<li><a href="">Sheds</a></li>
+				<li><a href="{% url 'userProfile.views.logout_user' %}"style="float:right">Logout</a></li>
+				{%else%}
+				{%if loginError%}
+				<li>invalid username/password</li>
+				{%endif%}
+				<form method="post" action="{%url 'userProfile.views.login_user' %}">
+				{% csrf_token %}
+				<li><label for="id_username">Username:</label> <input id="id_username" maxlength="100" name="username" type="text" /></li>
+				<li><label for="id_password">Password:</label> <input id="id_password" maxlength="100" name="password" type="password"/></li>
+				<input type="submit" value="Login">
+				</form>
+				{% endif %}
+				
+			</ul>
+		</div><!-- menu -->
+		<div id="ticker">
+			ToolShare: A Tool for Sharing
+		</div><!-- ticker -->
+		<div id="headerimage">
+			<div id="slogan">Envision a World of Sharing</div>
+		</div>
+		<!-- headerimage -->
+	</div>
+	<!-- header -->
+	<div id="content">
+			
+			{% block content %}{% endblock %}
+	</div><!-- content -->
+	<div id="properspace"></div><!-- properspace -->
+</div><!-- daddy -->
+<div id="footer">
+	<div id="foot">
+		<div id="foot1"><a href="./">Privacy Policy</a> - <a href="./">Terms Of Use</a></div><!-- foot1 -->
+		<div id="foot2">
+			<span class="valid">Valid <a href="http://validator.w3.org/check?uri=referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>Almost a Copyright 2013, ToolShare. Designed by <a href="http://www.symisun.com/" title="We digitalize your ambitions">SymiSun<span class="star">*</span></a>
+		</div><!-- foot1 -->
+	</div><!-- foot -->
+</div><!-- footer -->
+<script src="{{STATIC_URL}}myScript.js"></script>
+</body>
+</html>

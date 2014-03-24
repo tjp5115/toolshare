@@ -1,0 +1,29 @@
+{%if toolDenyReturn%}
+<h2>The borrower has been notified that the tool has not been returned</h2>
+{%elif toolReturnConfimation %}
+<h2>Borrowing complete</h2>
+{%elif awatingConfimation %}
+<h2>You have notified the tool's owner that the tool has been returned; awaiting  confimation from owner</h2>
+{%elif accept%}
+<h2>You have accepted the request</h2>
+{%else %}
+
+	{% if userRejectRequestValid %}
+		<h2>You have denied request.</h2>
+	{% else %}
+		<div id="registration">
+		<h2>You have denied the request.</h2>
+		<form id="fancyForm" action="{%url 'respondRequestDeny' username=username requestID=responseID%}" method="POST">{%csrf_token %}
+		 	<fieldset>
+					<p>
+					{{form.denyReason.errors}}
+					<label for="id_denyReason">Reason:</label>
+					{{form.denyReason}}
+					</p>
+				<input type="submit" value="Submit" id='sendbutton' />
+				</p>
+		 	</fieldset>
+		</form>
+		</div>
+	{%endif%}
+{%endif%}

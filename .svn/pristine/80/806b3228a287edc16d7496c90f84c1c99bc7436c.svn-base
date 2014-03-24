@@ -1,0 +1,38 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render
+from django.contrib.auth.models import User
+
+from django.contrib.auth import authenticate, login
+"""
+Process the index page request
+if the user is logged in, display their home page
+else diplay register page
+"""
+def index(request):
+    if request.method == 'POST':
+        return homepage_user(request,request.user)
+    else:
+        return homepage_register(request)
+
+"""
+logged in index page 
+display tools and other fun stuff --
+main page of the site
+"""
+def homepage_user(request, user):
+    template = 'contentUser.html'
+    context = RequestContext(request, {
+	'user': user,
+        })
+    return render(request,template,context)
+	
+"""
+default home page
+register user / login 
+"""
+def homepage_register(request):
+    template = 'contentRegister.html'
+    context = RequestContext(request)
+    return render(request,template,context)

@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<br>
+			<h1>Profile Options</h1>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="updateUser" href="{%url 'updateUser' user%}">Edit Profile</a></li>
+            <li><a id="changePass" href="{%url 'changePass' user%}">Change Password</a></li>
+				</ul>
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h2>Your Notifications</h2>
+				<div id="notifications">
+{%if activeRequests%}
+<h3>Tools you are currently borrowing:</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Tool Owner</th>
+<th scope="col">Date Range</th>
+</tr>
+</thead>
+<tbody>
+{% for request in activeRequests %}
+<tr>
+
+<td width="100px"class="">
+{{request.getTool}}
+</td>
+
+<td width="100px">
+{{request.getOwner}}
+</td>
+<td width="300px">
+{{request.getDateRange}}
+</td> 
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+{%endif%}
+
+
+{%if receivedRequests %}
+<h3>Pending requests</h3>
+<table>
+<thead>
+<tr>
+  <th scope="col">Tool</th>
+<th scope="col">Tool Owner </th>
+<th scope="col">Date Range</th>
+</tr>
+</thead>
+<tbody>
+{% for request in receivedRequests %}
+<tr>
+  <td width="100px"class="">
+{{request.getTool}}
+</td>
+
+<td width="100px">
+{{request.getOwner}}
+</td>
+<td width="170px">
+{{request.getDateRange}}
+</td> 
+<td>
+<a class="request" href="{%url 'respondRequestAccept' username=user requestID=request.id%}">Accept</a> 
+<a class="denyRequest" href="{%url 'respondRequestDeny' username=username requestID=request.id%}">Deny</a> 
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{%endif%}
+
+{%if responses%}
+<h3>Responses to your Requests</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Tool Owner</th>
+<th scope="col">Date Range</th>
+<th scope="col">Response</th>
+</tr>
+</thead>
+<tbody>
+{% for response in responses %}
+
+<tr>
+<td width="100px">
+{{ response.getTool }}
+</td>
+
+<td width="100px">
+{{response.getOwner}}
+</td>
+
+<td width="160px">
+{{response.getDateRange}}
+</td> 
+
+<td width="270">
+{%if response.status == 'rejected' %}<b> DENIED: </b>{%endif%}<span class="notifyData">{{response.description}}</span>
+</td>
+
+<td>
+<a class="request" href="{%url 'deleteResponse' requestID=response.id username=user%}">Delete</a> </span>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{%endif%}
+
+{%if pendingRequests%}
+<h3>Your pending borrow requests:</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Tool Owner</th>
+<th scope="col">Date Range</th>
+</tr>
+</thead>
+<tbody>
+{% for request in pendingRequests %}
+<tr>
+<td width="100px">
+{{ request.getTool }}
+</td>
+
+<td width="100px">
+{{request.getOwner}}
+</td>
+
+<td width="200px">
+{{request.getDateRange}}
+</td>
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{%endif%}
+
+
+{%if getWaitingRequests%}
+<h3>Tools you will be borrowing:</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Tool Owner</th>
+<th scope="col">Date Range</th>
+</tr>
+</thead>
+<tbody>
+{% for request in getWaitingRequests %}
+<tr>
+<td width="100px">
+{{ request.getTool }}
+</td>
+
+<td width="100px">
+{{request.getOwner}}
+</td>
+
+<td width="200px">
+{{request.getDateRange}}
+</td>
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{%endif%}
+
+{%if getAwaitingReturnRequests%}
+<h3>Tools you should have returned:</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Tool Owner</th>
+<th scope="col">Tool Returned</th>
+</tr>
+</thead>
+<tbody>
+{% for request in getAwaitingReturnRequests %}
+<tr>
+<td width="100px">
+{{ request.getTool }}
+</td>
+
+<td width="100px">
+{{request.getOwner}}
+</td>
+
+<td width="50px">
+<a class="request" href="{%url 'respondAwaitingReturnRequestAccept' username=user requestID=request.id%}">Yes</a>
+</td>
+</tr>
+{% endfor %}
+{%endif%}
+
+{%if getAwaitingConfirmationRequests%}
+<h3>Confirm tool(s) have been returned:</h3>
+<table >
+<thead>
+<tr>
+<th scope="col">Tool</th>
+<th scope="col">Returned By</th>
+<th scope="col">Tool Returned</th>
+</tr>
+</thead>
+<tbody>
+{% for request in getAwaitingConfirmationRequests %}
+<tr>
+<td width="100px">
+{{ request.getTool }}
+</td>
+
+<td width="100px">
+{{request.getSender}}
+</td>
+
+<td>
+<a class="request" href="{%url 'respondConfirmReturn' username=user requestID=request.id%}">Confirm</a> </span>
+</td>
+<td>
+<a class="request" href="{%url 'respondDenyReturn' username=user requestID=request.id%}">Deny</a>
+</td>
+{% endfor %}
+{%endif%}
+</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

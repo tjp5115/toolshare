@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Profile Options</h3>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="updateUser" href="{%url 'updateUser' user%}">Edit Profile</a></li>
+						<li><a href="{%url 'user_history' user%}">Account History</a></li>
+				</ul>
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Notifications</h3>
+				<div id="notifications">
+				{%if receivedRequests%}
+					<p>Requests to borrow your tools:
+    				{% for request in receivedRequests %}
+               			<div class="notify">Tool ID:{{request.toolID}} 
+               				<a class="acceptRequest" href="{%url 'respondRequestAccept' toolID=request.toolID username=user%}">Accept</a> 
+               				<a class="denyRequest" href="{%url 'respondRequestDeny' toolID=request.toolID username=user%}">Deny</a> 
+               			</div>
+    				{% endfor %}</p>
+   				{%endif%}
+					
+				{%if responses%}
+					<p>Responses to your requests:
+					{% for response in responses %}
+               			<div class="notify">Tool ID{{ response.ID }}
+						<a class="deleteResponse" href="{%url 'deleteResponse' toolID=request.toolID username=user%}">Accept</a> 
+               			</div>
+    				{% endfor %}</p>
+    			{%endif%}
+				{%if pendingRequests%}
+    				<p>Your pending borrow requests:
+					{% for request in pendingRequests %}
+               			<div class="notify">{{ request }}</div>
+    				{% endfor %}</p>
+				{%endif%}
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

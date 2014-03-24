@@ -1,0 +1,52 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+
+from django.contrib.auth import authenticate, login
+
+def view_home(request):
+    """
+    Log in flow (check if user is authenticated, authenticate if needed,
+    and redirect to homepage
+    """
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            homepage_success(request,user);
+        else:
+            pass
+            # Return a 'disabled account' error message
+			#return HttpResponse(template.render(context))
+    else:
+        pass
+        # Return an 'invalid login' error message
+		homepage_error(request)
+
+#successful log in -- default index page
+def homepage_success(request, user):
+	#need to 
+    template = loader.get_template('polls/index.html')
+    context = RequestContext(request, {
+        'user': user,
+    })
+	return HttpResponse(template.render(context))
+	
+#error logging in or other error -- diplay page 
+def homepage_error(request, user):
+	latest_poll_list = Poll.objects.order_by('-pub_date')[:5]
+	template = loader.get_template('polls/index.html')
+	context = RequestContext(request, {
+		'latest_poll_list': latest_poll_list,
+	})
+	return HttpResponse(template.render(context))
+
+"""
+def results(request, question_id):
+    response = "You're looking at the results of question %s."
+    return HttpResponse(response % question_id)
+
+def vote(request, question_id):
+    return HttpResponse("You're voting on question %s." % question_id)
+"""

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<br>
+			<h3>Welcome to {{username}}'s homepage!</h3>
+				
+			</p>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>{{username}}'s tools</h3>
+				<div class="news">
+						{% include "toolList.html" with toolList=toolList guest=True %}
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

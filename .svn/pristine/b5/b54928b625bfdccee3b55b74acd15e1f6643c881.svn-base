@@ -1,0 +1,246 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from django.contrib import messages
+from tool.models import Tool
+from notifications.models import Notification
+#from shareZone.models import // when we create a shareZone model, add here
+
+# Create your models here.
+class UserProfile(models.Model):
+    url = models.URLField()
+    nameFirst = models.CharField(max_length = 200)
+    nameLast= models.CharField(max_length = 200)
+    home_address = models.TextField()
+    #phone_number = models.PhoneNumberField()
+    email = models.CharField(max_length = 200)
+    user = models.ForeignKey(User, unique=True)
+    #shareZone = models.CharField(max_length = 10)
+
+    def __str__(self):
+        return self.user.username + ": " + self.nameFirst + " " + self.nameLast
+
+    #insert into DB
+    def insert(post):
+        # Is the user already in the database?
+        if not User.objects.filter(username=post['username']).exists():
+            userDB = User.objects.create_user(post['username'], post['email'], post['password'])
+            print("UserDB = "+ str(userDB))
+            # Create the user
+            UserProfile.objects.create( \
+            nameFirst = post['nameFirst'], \
+            nameLast=post['nameLast'], \
+            home_address = post['home_address'], \
+            email = post['email'], \
+            user = userDB
+            )
+            # Assign / create the ShareZone
+            print("about to create")
+            mygroup, created = Group.objects.get_or_create(name=post['zipCode'])
+            userDB.groups.add(mygroup)
+            #messages.add_message(request,messages.INFO,"You joined a group!")
+            return True
+
+        else:
+            return False
+
+    #update the DB with user pref
+    def update(user, request):        
+        #user = request.user
+        djangoUser = User.objects.get(id=user.id)
+        group = djangoUser.groups.all()[0]
+        user.nameFirst = request.POST['nameFirst']
+        user.nameLast = request.POST['nameLast']
+        user.home_address = request.POST['home_address']
+        user.email = request.POST['email']
+        if group.name != request.POST['shareZone']:
+            newGroup = Group.objects.get_or_create(name=request.POST['shareZone'])
+            djangoUser.groups.remove(group)
+            djangoUser.groups.add(newGroup)
+        user.save()
+
+    # Gets all of the users in the user's shareZone, not including himself
+    def getShareZone(self):
+        return User.objects.all().filter(
+                groups__name = self.user.groups.all()[0]
+            ).exclude(username = self.user)
+
+    ########################################################################
+    ################### Toollist calls #####################################
+    ########################################################################
+
+    # Gets all of the tools the user is currently has possession of (borrowed or owned)
+    def getToolList(self):
+        return Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            )
+
+    # Gets all of the tools that the user owns (lent out or not)
+    def getOwnedTools(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            )
+
+    # Gets all tools that the user is currently borrowing
+    def getBorrowedTools(self):
+        return Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            ).exclude(ownerID = self.user.id)
+
+    # Gets all tools that the user has lent out
+    def getLentTools(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            ).exclude(currentOwnerID = self.user.id)
+
+    ########################################################################
+    ################### Notification calls #################################
+    ########################################################################
+
+    # Check all notifications that could change based on day
+    def checkForNotificationChanges(self):
+        # Check all accepted requests
+        for notification in self.getAcceptedRequests():
+            notification.checkForChanges()
+
+        # Check all waiting requests
+        for notification in self.getWaitingRequests():
+            notification.checkForChanges()
+
+        # Check all active requests
+        for notification in self.getActiveRequests():
+            notification.checkForChanges()
+
+    # Get notifications that a user is waiting on responses for
+    def getPendingRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'pending'
+            )#order_by('timeEnd')
+
+    # Get notifications a user has received and are pending
+    def getReceivedRequests(self):
+        return Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'pending'
+            )
+
+    # Get notifications a user has sent and has received responses to
+    # Either status = accepted or pending
+    def getResponses(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).exclude(
+                status = 'pending'
+            ).exclude(
+                status = 'waiting'
+            ).exclude(
+                status = 'awaitingReturn'
+            ).exclude(
+                status = 'awaitingConfirmation'
+            ).exclude(
+                status = 'archived'
+            ).exclude(
+                status = 'active'
+            )
+
+    # Get accepted borrow requests
+    def getAcceptedRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'accepted'
+            )
+
+    # Get requests that are currently active
+    def getActiveRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'active'
+            )
+
+    # Get requests that are currently waiting to become active
+    def getWaitingRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'waiting'
+            )
+
+    # Get requests that the user needs to return to the lender
+    def getAwaitingReturnRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'awaitingReturn'
+            )
+
+    # Get requests that the user needs to confirm having received
+    # the tool back from the borrower
+    def getAwaitingConfirmationRequests(self):
+        return Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'awaitingConfirmation'
+            )
+
+    # Get all archived notifications associated with a user
+    def getArchivedRequests(self):
+        # Get notifications that user has created
+        lst = list(Notification.objects.all().filter(
+                status = 'archived'
+        ).filter(
+            senderID = self.user.id
+        ))
+
+        # Get notifications that user has received
+        lst.extend(
+            list(Notification.objects.all().filter(
+                status = 'archived'
+            ).filter(
+                receiverID = self.user.id
+            )))
+        return lst
+
+
+
+
+    """ I don't think this is necessary. I was concerned that we should check
+    both the sender and user perspective when we check to see what notifications
+    should be updated - for example, I log in as the receiver of the notification,
+    should I check if a notification that's going from active->awaitingReturn?
+    I don't think it's really necessary, though, because all the receiver sees
+    is when the sender sets it from awaitingReturn->awaitingConfirmation
+    # Get requests all requests that could need to be updated
+    def getTemporalRequests(self):
+        # Active with senderID = user
+        lst = list(self.getActiveRequests())
+        # Active with receiverID = user
+        lst.extend(list(Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'active'
+            )))
+
+        # Accepted with senderID = user
+        lst.extend(list(self.getAcceptedRequests()))
+        # Accepted with receiverID = user
+        lst.extend(list(Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'accepted'
+            )))
+
+        # Waiting with senderID = user
+        lst.extend(list(self.getWaitingRequests()))
+        # Waiting with receiverID = user
+        lst.extend(list(Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'waiting'
+            )))
+        return lst
+        """

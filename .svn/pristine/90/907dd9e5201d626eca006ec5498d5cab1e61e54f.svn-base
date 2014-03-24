@@ -1,0 +1,99 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+class Tool(models.Model):
+    name                = models.CharField(max_length = 200)
+    description         = models.CharField(max_length = 300)
+    status              = models.CharField(max_length = 100)
+    ownerID             = models.IntegerField()
+    currentOwnerID      = models.IntegerField()
+    availability        = models.BooleanField(False) #should inital be false?
+    pickupArrangements  = models.CharField(max_length = 300)
+    quantityCurr        = models.IntegerField()
+    quantityMax         = models.IntegerField()
+    specialInstructions = models.CharField(max_length = 300)
+
+    # Returns a string represntation of the tool
+    def __str__(self):
+        return self.name + ": " + self.description + ". available: " + str(self.availability)
+    
+    def borrow(self):
+        """
+        is this necessary?
+        """ 
+        pass
+
+    # Lends the tool to the User indicated by receiverID
+    def lend(self, receiverID):
+        self.currentOwnerID = receiverID
+        self.save()
+
+    # Updates the tool indicated by toolID with the information in the request object
+    def update(request, toolID):
+        #print("THE USER IS:")
+        #print(request.user.id)
+        #print(UserProfile.objects.all().filter(user = request.user.id)[0])
+        tool = Tool.objects.get(pk = toolID)
+        tool.name = request.POST['name']
+        tool.description = request.POST['description'] 
+            #picture =request.POST['name'],
+            #status =request.POST['name'],
+
+        # To avoid issue with not checking the checkbox
+        if 'availability' not in request.POST:
+            tool.availability = False
+        else:
+            tool.availability = request.POST['availability']
+
+            #pickupArrangements = request.POST[''],
+        if int(request.POST['quantityMax']) <= 0:
+            models.Tool.objects.delete(pk = toolID)
+        tool.quantityMax = int(request.POST['quantityMax'])  
+        tool.specialInstructions = request.POST['specialInstructions']            
+        tool.save()
+    def deleteTool(request,toolID,quantity):
+        #quantity will be taken from form and if less than current quantity tool is simply updated
+        tool = Tool.objects.get(pk = toolID)
+        #check if the current owner is the original owner, if so a tool can be deleted
+        if (tool.ownerID == tool.currentOwnerID):
+            if (tool.quantityCurr > 1):
+                tool.quantityCurr = tool.quantityCurr - 1
+                tool.save()
+            else:
+                tool.delete()
+
+
+    # Returns the tool to its original owner
+    def returnToOwner(self):
+        self.currentOwnerID = self.ownerID
+        self.save()
+
+    # Gets the User Profile of the tool's owner
+    def getOwner(self):
+        return User.objects.get(pk=self.ownerID)
+    # Inserts a tool into the database using the information in the request object
+    def insert(request):
+        #print("THE USER IS:")
+        #print(request.user.id)
+        #print(UserProfile.objects.all().filter(user = request.user.id)[0])
+
+        # To avoid issue with not checking the checkbox
+        if 'availability' not in request.POST:
+            availability = False
+        else:
+            availability = request.POST['availability']
+
+        Tool.objects.create(
+            name = request.POST['name'], 
+            description = request.POST['description'], 
+            #picture =request.POST['name'],
+            #status =request.POST['name'],
+            ownerID = request.user.id,
+            currentOwnerID = request.user.id,
+            availability = availability,
+            #pickupArrangements = request.POST[''],
+            quantityCurr = request.POST['quantityMax'], 
+            quantityMax = request.POST['quantityMax'],  
+            specialInstructions = request.POST['specialInstructions']  
+         ) 

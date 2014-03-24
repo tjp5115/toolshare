@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="Description" content="FCT01 by SymiSun* is an open source XHTML 1.0 and CSS valid template, released under the creative commons license." />
+<meta name="Keywords" content="symisun, symisun*, free css template, valid xhtml template, open source template, free xhtml template, ftc01, symisun 01" />
+<link rel="stylesheet" media="screen" href="style.css" />
+<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" /><!-- custom favicon -->
+<meta name="Author" content="SymiSun* - symisun.com" />
+<meta name="Robots" content="index,follow" />
+<meta http-equiv="imagetoolbar" content="no" /><!-- disable IE's image toolbar -->
+</head>
+
+<body>
+<div id="daddy">
+	<div id="header">
+		<div id="logo"><a href="./"><img src="images/logo.gif" alt="Tool Share" width="318" height="85" /></a><span id="logo-text"><a href="./">ToolShare</a></span></div><!-- logo -->
+		<div id="menu">
+			<ul>
+				<li><a href="./" id="active">Home</a></li>
+				<li><a href="./">Articles</a></li>
+				<li><a href="./">Forums</a></li>
+				<li><a href="./">Gallery</a></li>
+				<li><a href="./">Links</a></li>
+				<li><a href="./">Contact</a></li>
+			</ul>
+		</div><!-- menu -->
+		<div id="ticker">
+				Tool Share is a Tool
+		</div><!-- ticker -->
+		<div id="headerimage">
+			<div id="slogan">your slogan could go here</div>
+		</div>
+		<!-- headerimage -->
+	</div>
+	<!-- header -->
+	<div id="content">
+		<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Different Title</h3>
+			<p class="testimonial"><img src="images/testi_skuola.jpg" alt="Skuola Screenshot Piece" width="87" height="100" class="leflo" />
+			Maybe this can be something. It looks nice wihtha  picture but not with anything else
+			</p>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Tools</h3>
+				<div class="news">
+					<p>Stuff About the TOols </p>
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+	</div><!-- content -->
+	<div id="properspace"></div><!-- properspace -->
+</div><!-- daddy -->
+<div id="footer">
+	<div id="foot">
+		<div id="foot1"><a href="./">Privacy Policy</a> - <a href="./">Terms Of Use</a></div><!-- foot1 -->
+		<div id="foot2">
+			<span class="valid">Valid <a href="http://validator.w3.org/check?uri=referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span>Almost a Copyright 2013, ToolShare. Designed by <a href="http://www.symisun.com/" title="We digitalize your ambitions">SymiSun<span class="star">*</span></a>
+		</div><!-- foot1 -->
+	</div><!-- foot -->
+</div><!-- footer -->
+</body>
+</html>

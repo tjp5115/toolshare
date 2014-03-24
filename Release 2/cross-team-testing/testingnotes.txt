@@ -1,0 +1,28 @@
+Tested on Ubuntu 12.10 (precise) using chromium and firefox (newest releases)
+Tested on Windows7 using Chrome and Firefox (newest releases)
+
+zipCode does not return an error in the form when registering with an invalid zipCode.
+invalid zipCodes lengths are still being added to the database. it was noticed that
+a max length is described in the model, but it doesnt appear that django is recognizing 
+that. CharField in model vs. IntField in form. The max length validation may not be fully
+compatible since there is a difference in type.
+
+Capitalize tool name when displaying in table ( .capitalize)
+
+tool added with invalid field! added again when the validator passes
+
+Login banner does not display correctly in Firefox Canonical release (v25)
+
+cancelling registration causes a form resubmission dialogue box from the browser to pop up
+
+change the banner for  each app index?
+
+consider use of modals or tooltips to aid in usability?
+
+It seems that the user cannot update their profile information. Is this
+something that could be caused by running on Django 1.5.2?
+
+displaying shed information just duplicates what is in the sharezone table.
+do these ever get out of sync?
+
+where are site stats?

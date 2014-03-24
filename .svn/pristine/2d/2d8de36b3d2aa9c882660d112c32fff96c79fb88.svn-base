@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+		<div class="Ctopleft"><h3>Tool Options</h3></div>
+			<div id="sideMenu">
+				<ul>
+						<li><a href='{% url 'addTool' user %}'>Add Tool</a></li>
+						<li><a href='{% url 'updateTool' user %}'>Edit Tool</a></li>
+						<li><a href=''>Borrowed Tools</a></li>
+						<li><a href=''>Tools Owned</a></li>
+				</ul>
+			
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Tools</h3>
+				<div class="news">
+					{% for x in toolList %}
+					<p> {{x}} </p>
+					{% endfor%}
+					You have {{numTools}} tools!
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

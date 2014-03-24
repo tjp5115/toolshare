@@ -1,0 +1,85 @@
+from notifications import models
+from userProfile import models
+from tool.models import Tool
+from django import forms
+from django.shortcuts import render,redirect, get_object_or_404
+from django.contrib.auth.models import User
+
+"""
+creates a notification in the database if sucessful
+steps for validation:
+1) looks for a post from the request 
+	no post: returns empty borrow tool form
+2) if there is a post it checks if the borrow tool form is valid 
+	not valid: returns the form with the invalid data sent marked as invalid
+3) creates a notification in the database and tells the user it was sucessful
+"""
+def borrowTool(request, username, toolID):
+    #return HttpResponse("best page na")
+    template = 'borrowTool.html'
+    tool = Tool.objects.get(pk=toolID)   
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form = borrowToolForm(request.POST)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            print("receiver  id: "+str(tool.ownerID))
+            print("requester id: "+str(request.user.id))
+            models.Notification.insert(request,toolID,tool.ownerID) #need to check if it was successful
+            #print(request.POST['reason'])       # This is how we access the data in the form
+            #print(request.POST['timePeriod'])
+            #print(request.POST['quantity'])
+            return render(request,template,{
+                'toolBorrowSuccess': True,
+                'user': request.user,
+                'toolOwner': Tool.objects.get(pk=toolID).getOwner()
+                })
+        
+    else:
+        form = borrowToolForm()
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+            'toolID' :toolID,
+    })
+
+"""
+evaluates the response to the request
+if the user accepts the tool to be borrowed:   
+        notification is marked as reserved
+if the user denys the request:
+        tool is marked as archived
+"""
+def respondRequest(request,username,requestID,accept):
+
+    template = 'respondRequest.html'
+    response = models.Notification.objects.get(pk=requestID)
+    if accept:
+        response.accept()
+    else:
+        response.reject()
+    return render(request,template,{
+           'accept':accept,
+    })
+
+"""
+removes the response from the user's notifications
+makes the status of the tool as 'archived' for statistical purposes
+"""
+def deleteResponse(request,username,requestID):
+    template = 'deleteResponse.html'
+    response = models.Notification.objects.get(pk=requestID)
+    response.archive()
+    return render(request,template)
+
+"""
+a form class that extends the django form class for easy validation of forms
+"""
+class borrowToolForm(forms.Form):
+
+        css             = forms.TextInput(attrs={'class':'text'})
+        reason          = forms.CharField(max_length = 500,widget=css)
+        timeStart       = forms.DateField(widget=forms.TextInput(attrs={'class':'text','class':'timeStart'}))
+        timeEnd         = forms.DateField(widget=forms.TextInput(attrs={'class':'text','class':'timeEnd'}))
+        quantity        = forms.IntegerField(widget=css)

@@ -1,0 +1,29 @@
+
+
+
+
+{% if toolAddSuccess %}
+	<h2> Tool has been added </h2>
+{% else %}
+
+	<div id="container">
+		<form name="hongkiat" id="fancyForm" method="post" action="{%url 'addTool' user%}">{%csrf_token %}
+		<div id="wrapping" class="clearfix">
+			<div id="aligned">
+			{{form.name.errors}}
+			<label for="id_name" style="display:none">Name:</label>
+			{{form.name}}
+
+			{{form.description.errors}}
+			<label for="id_description" style="display:none">Description</label>
+			{{form.description}}
+
+			</div>
+		<div id="buttons">
+			<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+			<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Add Tool">
+			<br style="clear:both;">
+		</div>
+		</form>
+	</div> 
+ {% endif %}

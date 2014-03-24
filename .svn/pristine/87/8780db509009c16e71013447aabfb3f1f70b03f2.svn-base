@@ -1,0 +1,32 @@
+
+
+{% if toolUpdateSuccess %}
+<h2> Tool has been updated</h2>
+{% else %}
+<h2>Update Tool</h2>
+<div id="container">
+<form name="hongkiat" id="fancyForm" method="post" action="{%url 'updateTool' username=user toolID=toolID%}">{%csrf_token %}
+	<div id="wrapping" class="clearfix">
+		<div id="aligned">
+		{{form.name.errors}}
+		<label for="id_name" style="display:none">Name:</label>
+		{{form.name}}
+
+		{{form.description.errors}}
+		<label for="id_description" style="display:none">Description</label>
+		{{form.description}}
+
+
+
+		{{form.pickupArrangements.errors}}
+		<label for="id_pickupArrangements">Pickup Arrangements:</label> 
+		{{form.pickupArrangements}}
+		</div>
+	<div id="buttons">
+		<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+		<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Update" >
+		<br style="clear:both;">
+</div>
+</form>
+</div> 
+ {% endif %}

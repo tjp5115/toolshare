@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+		<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Tool</h3>
+			<p class="testimonial"><img src="{{STATIC_URL}}images/testi_skuola.jpg" alt="Skuola Screenshot Piece" width="87" height="100" class="leflo" />
+			tool
+			</p>
+		</div><!-- cA -->
+		
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h1>Tool Info</h1>
+				
+				<div class="news">
+					<p><strong>Name:</strong> {{ name }} </p>
+					
+					<p><strong>Status:</strong> {{ status }}</p>
+					
+					<p><strong>OwnerID:</strong> {{ ownerID }}</p>
+					
+					<p><strong>CurrentOwnerID:</strong> {{ currentOwnerID }}</p>
+					
+					<p><strong>Available?</strong> {{ availability }}</p>
+					
+					<p><strong>Pickup Arrangement:</strong> {{ pickupArrangements }}</p>
+					
+					<p><strong>Current Quantity:</strong> {{ quantityCurr }}</p>
+					
+					<p><strong>Max Quantity:</strong> {{ quantityMax }}</p>
+					
+					<p><strong>Description:</strong> {{ description }}</p>
+					
+					<p><strong>Special Instructions:</strong> {{ specialInstructions }}</p>
+					
+				</div><!-- news -->
+				
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+
+{% endblock %}
+

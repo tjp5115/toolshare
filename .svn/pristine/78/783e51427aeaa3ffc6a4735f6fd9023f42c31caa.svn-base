@@ -1,0 +1,26 @@
+from django.db import models
+from django.contrib.auth.models import Group
+
+MAX_RESULTS = 5
+
+# Create your models here.
+class ShareZone(models.Model):
+	zipCode = models.CharField(max_length = 5)
+
+	def getAllUserProfiles(self):
+		return self.userprofile_set.all()
+
+	def getAllTools(self):
+		return self.tool_set.all()	
+
+	def getActiveLenders(self):
+		return self.userprofile_set.all().order_by('numLoans')[:MAX_RESULTS]	
+
+	def getActiveBorrowers(self):
+		return self.userprofile_set.all().order_by('numBorrows')[:MAX_RESULTS]
+
+	def getMostUsedTools(self):
+		return self.tool_set.all().order_by('numBorrowed')[:MAX_RESULTS]
+
+	def getRecent(self):
+		return []

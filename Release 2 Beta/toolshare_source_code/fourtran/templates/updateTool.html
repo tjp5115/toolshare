@@ -1,0 +1,52 @@
+
+
+<div class="updateTool" id="registration">
+		{% if toolUpdateSuccess %}
+		<h2> Tool has been updated</h2>
+		{% else %}
+ <h2>Update Tool</h2>
+ <form id="fancyForm" action="{%url 'updateTool' username=user toolID=toolID%} " method="POST">{%csrf_token %}
+ 	<fieldset>
+			<p>
+			{{form.name.errors}}
+			<label for="id_name">Name:</label>
+			{{form.name}}
+			</p>
+			<p>
+
+			{{form.quantityMax.errors}}
+			<label for="id_quantityMax">Quantity:</label>
+			{{form.quantityMax}}
+			</p>
+			<p>
+
+			{{form.description.errors}}
+			<label for="id_description">Description:</label>
+			{{form.description}}
+			</p>
+
+			<p>
+			{{form.pickupArrangements.errors}}
+			<label for="id_pickupArrangements">Pickup Arrangements:</label> 
+			{{form.pickupArrangements}}
+			</p>
+
+			<p>
+			{{form.specialInstructions.errors}}
+			<label for="id_specialInstructions">Special Instructions:</label> 
+			{{form.specialInstructions}}
+			</p>
+			<p>
+			{{form.availability.errors}}
+			<label for="id_availability">Available for Borrowing:</label>
+		{{form.availability}}
+	</p>
+			<p>
+<input type="submit" value="Submit" id="sendbutton" />
+</p>
+ 	</fieldset>
+
+
+ </form>
+ {% endif %}
+</div>

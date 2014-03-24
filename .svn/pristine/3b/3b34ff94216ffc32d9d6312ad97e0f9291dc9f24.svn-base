@@ -1,0 +1,16 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render,redirect
+from django.contrib.auth.models import User
+from django import forms
+from userProfile import models
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+
+#add a tool to a user
+def addTool(request):
+	return HttpRequest("hi add tool")
+def	updateTool(request):
+	return HttpRequest("hi update a tool")
+

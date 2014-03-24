@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+	<div class="Ctopleft"></div>
+	<h1>ShareZone Statistics</h1>
+	<p class="testimonial">
+	<ul>
+			{%if shareZone.getActiveLenders%}
+			<ol><b>Most active lenders:</b>
+				{%for user in shareZone.getActiveLenders%}
+					<li>{{user}}</li>
+				{%endfor%}
+			</ol>
+			<br>
+			{%endif%}
+
+			{%if shareZone.getActiveBorrowers%}
+			<ol><b>Most active borrowers:</b>
+				{%for user in shareZone.getActiveBorrowers%}
+					<li>{{user}}</li>
+				{%endfor%}
+			</ol>
+			<br>
+			{%endif%}
+
+			{%if shareZone.getMostUsedTools%}
+			<ol><b>Most used tools:</b>
+				{%for user in shareZone.getMostUsedTools%}
+					<li>{{user}}</li>
+				{%endfor%}
+			</ol>
+			<br>
+			{%endif%}
+
+			{%if shareZone.getLoansPerUser%}
+			<ul><b>Loans per user:</b>
+				<li>{{shareZone.getLoansPerUser}}</li>
+			</ul>
+			<br>
+			{%endif%}
+
+			{%if shareZone.getLoansPerTool%}
+			<ul><b>Loans per tool:</b>
+				<li>{{shareZone.getLoansPerTool}}</li>
+			</ul>
+			<br>
+			{%endif%}
+
+			{%if shareZone.getToolsPerUser%}
+			<ul><b>Tools per user:</b>
+				<li>{{shareZone.getToolsPerUser}}</li>
+			</ul>
+			{%endif%}
+	</ul>
+	</p>
+</div><!-- cA -->
+<div id="cB">
+	<div class="Ctopright"></div>
+	<div id="cB1">
+	<h1>Tools in {{user}}'s ShareZone ({{zipcode}})</h1><br />
+			{%if shareZone%}
+			<table id="tableToolList" class="tablesorter" summary="Meeting Results">
+			    <thead>
+			    	<tr>
+			            <th scope="col">Owner</th>
+			            <th scope="col">Name</th>
+			            <th scope="col">Description</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			    	{% for user in shareZoneUser %}
+					{% for tool in user.get_profile.getOwnedTools %}
+			    	<tr>
+			    	
+			    	<td class="ownerName" > 
+			    		<a href="{% url 'homepage_user' user%}">{{user.get_profile.nameFirst}} {{user.get_profile.nameLast}}</a>
+			    	</td>	
+			   	   
+			   	    <td class="toolName" >	
+						<a 		
+								class="displayTool" 
+								href="{%url 'displayTool' username=user toolID=tool.id%}" > 
+								{{tool.name}}
+						</a>
+					</td>
+					
+					<td class="toolDesc">
+						{{tool.description}}
+					</td>
+					
+					<td class="toolActionFloat">
+						<span class='bold'>
+							<a class="borrowTool" href="{%url 'borrowTool' username=user toolID=tool.id%}">Borrow</a>
+						</span>
+					</td>
+			       
+			        </tr>
+				{% endfor%}
+				{% endfor %}
+			    </tbody>
+			</table>
+			{%else%}
+			<p>&nbsp;</p>
+			<p>There is no one in your sharezone yet.</p>
+			{%endif%}
+
+	</div><!-- cB1 -->
+</div><!-- cB -->
+<div class="Cpad">
+	<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+</div><!-- Cpad -->
+{% endblock %}

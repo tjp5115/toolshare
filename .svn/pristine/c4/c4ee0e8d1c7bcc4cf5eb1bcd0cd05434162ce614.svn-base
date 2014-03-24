@@ -1,0 +1,77 @@
+from django.template import RequestContext
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from userProfile.models import UserProfile
+
+
+"""
+index page for the Sheds -- very similar tot he shareZone
+"""
+def index(request, username):
+	template = 'contentShed.html'
+	context = RequestContext(request, {
+		'request' : request,
+		'user' : request.user,
+		'isCoordinator' :request.user.get_profile().isCoordinator(),
+		'shedCoordinators' : request.user.get_profile().getShedCoordinators(),
+		}
+	)
+	return render(request,template,context)
+
+#toggles the current status of the user as shedCorrdinator
+def toggleCoordinator(request,username):
+	user = request.user.get_profile()
+	template = 'toggleCoordinator.html'
+
+	if user.isCoordinator():
+		context = RequestContext(request,{
+			'removeCoordinator' : True
+			})
+		user.removeCoordinatorStatus()
+	else:
+		context = RequestContext(request,{
+			'removeCoordinator':False
+
+		})
+		user.becomeCoordinator()
+
+
+	return render(request,template,context)
+#adds tools from a form to the shed
+def addTools(request,username,coordinator):
+	user = request.user.get_profile()
+	template = 'addRemoveToolsToShed.html'
+	if request.method == 'POST':
+		coordinator = User.objects.get(username=coordinator).get_profile()
+		print("coor = " + str(username))
+		coordinator.addToolsToShed(request.POST)
+		context = RequestContext(request,{
+			'toolAddSuccess' : True,
+			'coordinator': coordinator
+		})	
+	else:
+		context = RequestContext(request,{
+			'toolList' : user.getToolList(),
+			'coordinator': coordinator
+		})
+	return render(request,template,context)
+
+def removeTools(request,username,coordinator):
+	user = request.user.get_profile()
+	template = 'addRemoveToolsToShed.html'
+	if request.method == 'POST':
+		coordinator = User.objects.get(username=coordinator).get_profile()
+		
+		coordinator.removeToolsFromShed(request.POST)
+		context = RequestContext(request,{
+			'toolRemoveSuccess' : True,
+			'coordinator': coordinator
+		})
+	else:
+		context = RequestContext(request,{
+			'toolList' : user.getToolList(coordinator=coordinator),
+			'coordinator': coordinator
+		})
+
+
+	return render(request,template,context)

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+	<div id="toolFormAddContent" style="display:none">
+	</div>
+	<div id="toolFormUpdateContent" style="display:none">
+	</div>
+<div id="cA">
+		<div class="Ctopleft"><h3>Tool Options</h3></div>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="addTool" href='{%url 'addTool' user%}'>Add Tool</a></li>
+						<li><a href="{% url 'borrowTool' %}">Borrowed Tools</a></li>
+						<li><a href=''>Tools Owned</a></li>
+				</ul>
+			
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+					<h3>All tools ({{numTools}})</h3>
+				<div class="news">
+					{% include "toolList.html" with toolList=toolList guest=False %}
+				</div>
+			</div><!-- cB1 -->
+
+			<div id="cB1">
+					<h3>Tools you own ({{numToolsOwned}})</h3>
+				<div class="news">
+					{% include "toolList.html" with toolList=toolListOwned guest=False %}
+				</div>
+			</div><!-- cB1 -->
+
+			<div id="cB1">
+					<h3>Tools you're borrowing ({{numToolsBorrowed}})</h3>
+				<div class="news">
+					{% include "toolList.html" with toolList=toolListBorrowed guest=False %}
+				</div>
+			</div><!-- cB1 -->
+
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+
+{% endblock %}
+

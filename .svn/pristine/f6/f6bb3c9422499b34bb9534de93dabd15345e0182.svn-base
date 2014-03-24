@@ -1,0 +1,21 @@
+{% if changePassSuccess %}
+<h2> Password has been changed.</h2>
+{% else %}
+<div id="container">
+<form name="hongkiat" id="fancyForm" method="post" action="{%url 'changePass' username=user%}">{%csrf_token %}
+	<div id="wrapping" class="clearfix">
+		<div id="aligned">
+			{{form.changePass.errors}}
+			<label for="id_newPass"></label>
+			{{form.changePass}}
+
+		</div>
+	<div id="buttons">
+		<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+		<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Update" >
+		<br style="clear:both;">
+</div>
+</form>
+</div> 
+{%endif%}
+

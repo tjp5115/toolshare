@@ -1,0 +1,5 @@
+{%if removeCoordinator %}
+You are no longer a shed coordinator 
+{%else%}
+You have become a shed coordinator
+{%endif%}

@@ -1,0 +1,21 @@
+{% if toolAddSuccess %}
+	<h2> Tool has been added </h2>
+{% else %}
+	<h2>Add Tools to Shed</h2>
+	<div id="container">
+		<form name="hongkiat" id="fancyForm" method="post" action="{%url 'addToolsToShed' username=user coordinator=coordinator %}">
+			{%csrf_token %}
+			<div id="wrapping" class="clearfix">
+				<div id="aligned">
+					{%for tool in toolList%}
+						<input class="shedTools" name="{{tool.id}}" value="{{tool.name}}" type="checkbox">{{tool.name}}
+					{%endfor%}
+				</div>
+			<div id="buttons">
+				<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+				<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Add">
+				<br style="clear:both;">
+			</div>
+		</form>
+	</div> 
+ {% endif %}

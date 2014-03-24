@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Profile Options</h3>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="updateUser" href="{%url 'updateUser' user%}">Edit Profile</a></li>
+						<li><a href="{%url 'user_history' user%}">Account History</a></li>
+				</ul>
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Notifications:</h3>
+				<div id="notifications">
+				{%if activeRequests%}
+    				<p>Your tools being borrowed:
+					{% for request in activeRequests %}
+               			<div class="notify">{{ request }}</div>
+    				{% endfor %}</p>
+				{%endif%}
+				{%if receivedRequests%}
+					<p>Requests to borrow your tools:
+    				{% for request in receivedRequests %}
+               			<div class="notify">Tool ID:{{request.toolID}} 
+               				<a class="request" href="{%url 'respondRequestAccept' username=user requestID=request.id%}">Accept</a> 
+               				<a class="request" href="{%url 'respondRequestDeny' username=user requestID=request.id%}">Deny</a> 
+               			</div>
+    				{% endfor %}</p>
+   				{%endif%}
+					
+				{%if responses%}
+					<p>Responses to your requests:
+					{% for response in responses %}
+               			<div class="notify">request ID: {{ response.id }}
+						<a class="request" href="{%url 'deleteResponse' requestID=response.id username=user%}">DELETE</a> 
+               			</div>
+    				{% endfor %}</p>
+    			{%endif%}
+				{%if pendingRequests%}
+    				<p>Your pending borrow requests:
+					{% for request in pendingRequests %}
+               			<div class="notify">{{ request }}</div>
+    				{% endfor %}</p>
+				{%endif%}
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

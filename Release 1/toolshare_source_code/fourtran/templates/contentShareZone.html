@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Different Title</h3>
+			<p class="testimonial"><img src="{{STATIC_URL}}images/testi_skuola.jpg" alt="Skuola Screenshot Piece" width="87" height="100" class="leflo" />
+			We are in the sharezone!
+			</p>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+					<h1>People in {{user}}'s ShareZone</h1>
+				<div class="news">
+					{% for user in shareZone %}
+					<p class="userShareZone">Username: <a href="{% url 'homepage_user' user%}">{{user}}</a><span class="quantityTools"> </span></p>
+					{% endfor%}
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

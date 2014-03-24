@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ UserProfile.name }} amazing blog{% endblock %}
+
+{% block content %}
+    <h2>{{ Userprofile.name }}</h2>
+    <p>{{ entry.body }}</p>
+	<p>{{ entry.home_address }}</p>
+	<p>{{ entry.email }}</p>
+{% endblock %}

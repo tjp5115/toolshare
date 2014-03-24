@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Profile Options</h3>
+			<div id="sideMenu">
+				<ul>
+						<li><a id="updateUser" href="{%url 'updateUser' user%}">Edit Profile</a></li>
+						<li><a href="{%url 'user_history' user%}">Account History</a></li>
+				</ul>
+			</div>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Notifications</h3>
+				<div class="notifications">
+					<p>Requests to borrow your tools:
+    				{% for request in receivedRequests %}
+               			<p>-----> {{ request }}</p>
+    				{% endfor %}</p>
+
+					<p>Responses to your requests:
+					{% for response in responses %}
+               			<p>-----> {{ response }}</p>
+    				{% endfor %}</p>
+
+    				<p>Your pending borrow requests:
+					{% for request in pendingRequests %}
+               			<p>-----> {{ request }}</p>
+    				{% endfor %}</p>
+
+				</div>
+				<div class="messages">
+					{% if messages %}
+						<ul class="messages">
+    						{% for message in messages %}
+                				<p>{{ message }}</p>
+    						{% endfor %}
+						</ul>
+					{% endif %}
+				</div>
+				<div class="news">
+					<p>{{user}} logged ln. </p>
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

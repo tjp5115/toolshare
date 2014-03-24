@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>About ToolShare</h3>
+			<p class="testimonial">
+			<b> Welcome to ToolShare! Enjoy a free means to share everyday tools with neighbors.</p><p class="testimonial">  From kitchen utensils to your standard hardware, you can register it all. Upon completing our easy registration, you will be entered into a ShareZone for your specific zip code. </p> </b> <p class="testimonial"> <b> You can register your tools within the Tool Tab located at the top of your home page upon login. </p><p class="testimonial"> Help us envision a world where we can all learn to share better! </b>
+			</p>
+		</div><!-- cA -->
+		<div style='background:#282627'id="cB">
+			<div style='background:#282627'class="Ctopright"></div>
+			<div style='background:#282627'id="cB1">
+				<div style='background:#282627; border:000' class="news">
+<div id="registration">
+ <h2>Create an Account</h2>
+
+ <form id="RegisterUserForm" action="{%url 'userProfile.views.index'%} " method="POST">{%csrf_token %}
+ <fieldset>
+	<p>
+	{{form.username.errors}}
+	<label for="id_username">Username:</label>
+	{{form.username}}
+	</p>
+	<p>
+	{{form.nameFirst.errors}}
+	<label for="id_nameFirst">First Name:</label>
+		{{form.nameFirst}}
+	</p>
+	<p>
+	{{form.nameLast.errors}}
+	<label for="id_nameLast">Last Name:</label>
+		{{form.nameLast}}
+	</p>
+	<p>
+	{{form.home_address.errors}}
+	<label for="id_home_address">Home address:</label>
+		{{form.home_address}}
+	</p>
+	<p>
+	{{form.zipCode.errors}}
+	<label for="id_zipCode">Zipcode:</label>
+		{{form.zipCode}}
+	</p>
+	<p>
+	{{form.email.errors}}
+	<label for="id_email">Email:</label>
+		{{form.email}}
+	</p>
+	<p>
+	{{form.password.errors}}
+	<label for="id_password">Password:</label>
+	{{form.password}}
+	</p>
+<input type="submit"value="Submit" class="input"  />
+ 	</fieldset>
+
+ </form>
+ </div>
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+		<style>
+		.Cbottom { width:270px}
+		.Cbottomright{background:#282627;}
+
+</style>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="cA">
+			<div class="Ctopleft"></div>
+			<h3>Different Title</h3>
+			<p class="testimonial"><img src="{{STATIC_URL}}images/testi_skuola.jpg" alt="Skuola Screenshot Piece" width="87" height="100" class="leflo" />
+			We are in the sharezone!
+			</p>
+		</div><!-- cA -->
+		<div id="cB">
+			<div class="Ctopright"></div>
+			<div id="cB1">
+				<h3>Your Tools</h3>
+				<div class="news">
+					<p>{{user}} lol</p>
+					<p>We are in the sharezone! </p>
+				</div>
+			</div><!-- cB1 -->
+		</div><!-- cB -->
+		<div class="Cpad">
+			<br class="clear" /><div class="Cbottomleft"></div><div class="Cbottom"></div><div class="Cbottomright"></div>
+		</div><!-- Cpad -->
+{% endblock %}

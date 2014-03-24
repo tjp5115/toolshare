@@ -1,0 +1,48 @@
+{% if toolAddSuccess %}
+	<h2> Tool(s) have been added </h2>
+{% elif toolRemoveSuccess %}
+	<h2> Tool(s) have been removed </h2>
+{%else%}
+				{%if noToolsSelected %}
+					<p class='error'>Please select a tool =D</p>
+				{%endif%}
+	<div id="container">
+		{%if remove%}
+			<h2>Remove Tools from Shed</h2>
+		{%else%}
+			<h2>Add Tools to Shed</h2>
+		{%endif%}
+
+		<form name="hongkiat" id="fancyForm" method="post"
+			{%if remove%}
+				action="{%url 'removeToolsToShed' username=user coordinator=coordinator %}"
+			{%else%}
+				 action="{%url 'addToolsToShed' username=user coordinator=coordinator %}"
+			{%endif%}
+		 >
+			{%csrf_token %}
+			<div id="wrapping" class="clearfix">
+				<div id="aligned">
+
+					<ul class="shedTools">
+					{%for tool in toolList%}
+						<li>
+							<input name="{{tool.id}}" value="{{tool.name}}" type="checkbox">{{tool.name}}
+						</li>
+					{%endfor%}
+					</ul>
+				</div>
+
+			<div id="buttons">
+				<input type="reset" name="reset" id="resetbtn" class="resetbtn" value="Reset">
+				{%if remove%}
+				<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Remove">
+				{%else%}
+				<input type="submit" name="submit" id="sendbutton" class="sendbutton" tabindex="7" value="Add">
+				{%endif%}
+
+				<br style="clear:both;">
+			</div>
+		</form>
+	</div> 
+{% endif %}

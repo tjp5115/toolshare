@@ -1,0 +1,204 @@
+from django.http import HttpResponse, Http404
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render,redirect,get_object_or_404
+from django.contrib.auth.models import User
+from django import forms
+from userProfile.models import UserProfile
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+from django.contrib import messages
+from userProfile import models
+
+
+"""
+Process the index page request
+if the user is logged in, display their home page
+else diplay register page
+"""
+def index(request):
+    #check if user logged in
+    #logout(request) #temp line for dbug  -- lets have no one every log in
+    if  request.user.is_authenticated():
+        return homepage_user(request,request.user)
+
+    #check to see if the user has submited a form from a previous register
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            #process form 
+            #1) insert into DB 
+            if not UserProfile.insert(request.POST):
+                errors = form._errors.setdefault("username", ErrorList())
+                errors.append("Username already taken.")
+                return homepage_register(request,form)      
+            #2)log user in 
+            user = authenticate(username=request.POST['username'],password=request.POST['password'])
+            login(request,user)
+            #3) show new index page
+            return homepage_user(request,request.user)
+    else:
+        form = RegisterForm()
+    
+    return homepage_register(request,form)
+    
+
+"""
+logged in index page 
+display tools and other fun stuff --
+main page of the site
+"""
+def homepage_user(request,username ):
+    user = get_object_or_404(User,username=username) 
+    usernameID = User.objects.get(username=username).id;
+    if(str(username) != str(request.user)):
+        template = 'contentUserGuest.html'
+    else:
+        template = 'contentUser.html'
+    # Check if any notifications change state today
+    request.user.get_profile().checkForNotificationChanges()
+
+    context = RequestContext(request, {
+        'request' : request,
+        'user' : user,     
+        'username' : user,     
+        'toolList' : models.Tool.objects.all().filter(ownerID= usernameID),
+        'responses' : User.objects.get(username=username).get_profile().getResponses(),
+        'pendingRequests' : User.objects.get(username=username).get_profile().getPendingRequests(),
+        'receivedRequests' : User.objects.get(username=username).get_profile().getReceivedRequests(),
+        'activeRequests' : User.objects.get(username=username).get_profile().getActiveRequests(),
+    })
+    return render(request,template,context)
+    
+"""
+default home page
+register user / login 
+"""
+def homepage_register(request,form):
+    template = 'contentRegister.html'
+    return render(request,template, { 
+            'form': form, 
+        })
+"""
+log user in and redirect to his/her page
+"""
+def login_user(request):
+    user = authenticate(username=request.POST['username'], password=request.POST['password'])
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+
+            return homepage_user(request,request.user)
+        else:
+            # Return a 'disabled account' error message
+            pass
+    else:
+        template = 'contentRegister.html'
+        return render(request,template,{
+            'loginError': True,
+            'form':RegisterForm()
+            
+            })
+    
+"""
+logout and return to the registration page
+"""
+def logout_user(request):
+    logout(request)
+    return redirect('userProfile.views.index')
+
+"""
+
+*** this will be obsolete ***
+
+edit user's preferences
+""" 
+def edit_user(request,username):
+    template = 'contentEditUser.html'
+    context={
+        'user':request.user
+    }
+    return render(request,template,context)
+    
+"""
+update user's profile
+"""
+def updateUser(request, username):
+    template = 'updateUser.html'
+    user = UserProfile.objects.get(user=request.user) 
+    
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form = updateUserForm(request.POST,my_arg=user)
+        #validate form
+        if form.is_valid():
+            #user is valid -- enter into database
+            print(request.POST['nameLast'])
+            models.UserProfile.update(user, request)
+            return render(request,template,{
+                'userUpdateSuccess': True,
+                'user':request.user,
+                })
+        
+    else:
+        form = updateUserForm(my_arg=user)
+    #user = User.objects.all().filter(id=request.user.id)[0].username
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+        })
+
+
+"""
+pulls up a new page with user's history
+    -lists when account was created, tool's created, tool's deleted, borrowing history
+    -does not list: account login/logout times, tool updates
+"""
+def history_user(request, username):
+    pass
+    
+# Form used for updating a user
+class updateUserForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('my_arg')
+        super(updateUserForm, self).__init__(*args, **kwargs)
+
+        self.fields['nameFirst']         = forms.CharField(max_length = 200,widget=forms.TextInput(attrs={'class':'text','value':user.nameFirst}))
+        self.fields['nameLast']          = forms.CharField(max_length = 200,widget=forms.TextInput(attrs={'class':'text','value':user.nameLast}))
+        self.fields['home_address']      = forms.CharField(max_length = 200,widget=forms.TextInput(attrs={'class':'text','value':user.home_address}))
+        self.fields['email']             = forms.CharField(max_length = 200,widget=forms.TextInput(attrs={'class':'text','value':user.email}))
+    
+"""
+loginform
+"""
+class LoginForm(forms.Form):
+    username= forms.CharField(max_length=100)
+    password = forms.CharField(max_length=32, widget=forms.PasswordInput)
+ 
+"""
+registration form
+"""
+class RegisterForm(forms.Form):
+    
+    css = forms.TextInput(attrs={'class':'text'})
+    #url = forms.CharField(max_length=100)
+    nameFirst = forms.CharField(max_length=100,widget=css)
+    nameLast = forms.CharField(max_length=100,widget=css) 
+    home_address = forms.CharField(max_length=100,widget=css)
+    zipCode = forms.IntegerField(widget=css)
+    email = forms.EmailField(max_length=100,widget = css)
+    password = forms.CharField(max_length=32, widget=forms.TextInput(attrs={'class':'text','type':'password'}))
+    verify_password = forms.CharField(max_length=32, widget=forms.TextInput(attrs={'class':'text','type':'password'}))
+    username= forms.CharField(max_length=100,widget = css)
+    
+    def clean_verify_password(self):
+        
+        password = self.cleaned_data.get('password')
+        verify_password = self.cleaned_data.get('verify_password')
+        
+        if password != verify_password:
+            raise forms.ValidationError("Your passwords do not match")
+            
+        return verify_password
+
+

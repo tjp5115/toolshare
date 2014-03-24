@@ -1,0 +1,123 @@
+from django.http import HttpResponse, HttpRequest
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render,redirect, get_object_or_404
+from django.contrib.auth.models import User
+from django import forms
+from tool import models
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+from django.views.generic.edit import UpdateView
+
+import userProfile
+
+#add a tool to a user
+def addTool(request, username):
+    template = 'addTool.html'
+    
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form = toolForm(request.POST)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            models.Tool.insert(request)
+            return render(request,template,{
+                'toolAddSuccess': True,
+                'user':request.user,
+                })
+        else:
+            #deal with invalid form
+            pass
+    else:
+        form = toolForm()
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+        })
+def deleteTool(request,username,toolID):
+    #Form to delete tool is need that will ask user the quantity to delete.
+    template = 'deleteFailOwn.html'
+    fail = models.Tool.deleteTool(request,toolID)
+    print (fail)
+    if fail == 1:
+        #return redirect('/'+username+'/tools/')
+        template = 'deleteSuccess.html'
+        return render(request,template)
+    elif fail == 2:
+        template = 'deleteFailRes.html'
+        return render(request,template)
+    else:
+        return render(request,template)
+"""
+update Tool with post request
+
+quantity will be a problem  -- need to make > 0 
+"""
+def updateTool(request,username,toolID):
+    template = 'updateTool.html'
+    tool = models.Tool.objects.get(pk=toolID)
+    if (tool.ownerID != tool.currentOwnerID):
+        template = 'dontEditTool.html'
+        return render (request,template)
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form =toolForm(request.POST)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            models.Tool.update(request,toolID)
+            return render(request,template,{
+                'toolUpdateSuccess': True,
+                'user':request.user,
+                'toolID' : toolID
+                })
+        
+    else:
+        form = toolForm(initial={
+            'name':tool.name,            
+            'description':tool.description,
+            'quantityMax':tool.quantityMax,
+            'specialInstructions': tool.specialInstructions,
+            'availability': tool.availability,
+            })
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+            'tool' : tool,
+            'toolID': toolID,
+        })
+
+
+
+"""
+display a tool
+"""
+def displayTool(request, username, toolID):
+    tool = get_object_or_404(models.Tool, pk=toolID)
+    context = {
+        'tool':tool
+    }
+    return render(request, 'contentTool.html', context)
+
+# Form used for adding a tool to the database
+class toolForm(forms.Form):
+    css = {
+        'type':"text",
+        'name':"name",
+        'autocomplete':"off",
+        'class':"txtinput"
+    }
+
+    css['placeholder'] = "Tool name"
+    cssName = forms.TextInput(attrs=css)
+    css['placeholder'] = "Tool quantity"
+    cssQty  = forms.TextInput(attrs=css)
+    css['placeholder'] = "Tool description"
+    cssDesc = forms.Textarea(attrs=css)
+
+    name                = forms.CharField(max_length = 200,widget=cssName)
+    quantityMax         = forms.IntegerField(widget=cssQty)
+    description         = forms.CharField(max_length = 300,widget=cssDesc)
+
+        

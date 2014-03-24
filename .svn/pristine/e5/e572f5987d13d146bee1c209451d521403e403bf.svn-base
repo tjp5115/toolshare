@@ -1,0 +1,156 @@
+from django.http import HttpResponse, HttpRequest
+from django.template import RequestContext, loader
+from django.core.context_processors import csrf
+from django.shortcuts import render,redirect, get_object_or_404
+from django.contrib.auth.models import User
+from django import forms
+from tool import models
+#from userProfile import models
+from django.contrib.auth import authenticate, login,logout
+from django.forms.util import ErrorList
+from django.contrib import messages
+from django.views.generic.edit import UpdateView
+
+import userProfile
+
+#add a tool to a user
+def addTool(request, username):
+    template = 'addTool.html'
+    
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form = toolForm(request.POST)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            models.Tool.insert(request)
+            return render(request,template,{
+                'toolAddSuccess': True,
+                'user':request.user,
+                })
+        
+    else:
+        form = toolForm()
+    us = User.objects.all().filter(id=request.user.id)[0].username
+    print(us)
+    messages.add_message(request,messages.INFO,'You tried to add a tool, tool.',extra_tags='tool')
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+        })
+
+"""
+update Tool with post request
+
+quantity will be a problem  -- need to make > 0 
+"""
+def updateTool(request,username,toolID):
+    template = 'updateTool.html'
+    tool = models.Tool.objects.get(pk=toolID)   
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form =updateToolForm(request.POST,my_arg=tool)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            models.Tool.update(request,toolID)
+            return render(request,template,{
+                'toolUpdateSuccess': True,
+                'user':request.user,
+                'toolID' : toolID
+                })
+        
+    else:
+        form = updateToolForm(my_arg=tool)
+    us = User.objects.all().filter(id=request.user.id)[0].username
+    messages.add_message(request,messages.INFO,'You tried to add a tool, tool.',extra_tags='tool')
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+            'toolID' : toolID
+        })
+
+def borrowTool(request, username, toolID):
+    #return HttpResponse("best page na")
+    template = 'borrowTool.html'
+    tool = models.Tool.objects.get(pk=toolID)   
+    #has the sent been sent previously 
+    if request.method == 'POST':
+        form = borrowToolForm(request.POST)
+        #validate form
+        if form.is_valid():
+            #tool is valid -- enter into database
+            """
+            NAH NAH NAH HERE WE SEND A BORROW REQUEST TO THE TOOLS OWNER USING THE INFORMATION IN THE
+            FORM THAT THEY ENTEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED
+            also, I don't know what the "Reverse for 'borrowTool' thing in the shell is...
+            """
+            print(request.POST['reason'])       # This is how we access the data in the form
+            print(request.POST['timePeriod'])
+            print(request.POST['quantity'])
+            return render(request,template,{
+                'toolBorrowSuccess': True,
+                'user': request.user,
+                'toolOwner': models.Tool.objects.get(pk=toolID).getOwner()
+                })
+        
+    else:
+        form = borrowToolForm()
+    us = User.objects.all().filter(id=request.user.id)[0].username
+    messages.add_message(request,messages.INFO,'You tried to borrow a tool, tool.',extra_tags='tool')
+    return render(request,template,{
+            'form':form,    
+            'user':request.user,
+        })
+
+"""
+display a tool
+"""
+def displayTool(request, username, toolID):
+    tool = get_object_or_404(models.Tool, pk=toolID)
+    toolOwner = get_object_or_404(userProfile.models.UserProfile, pk=tool.ownerID)
+    currentOwner = get_object_or_404(userProfile.models.UserProfile, pk=tool.currentOwnerID)
+    context = {
+        'name':                 tool.name,
+        'description':          tool.description,
+        'status':               tool.status,
+        'ownerID':              toolOwner.user, #tool.ownerID,
+        'currentOwnerID':       currentOwner.user, #tool.currentOwnerID,
+        'availability':         tool.availability,
+        'pickupArrangements':   tool.pickupArrangements,
+        'quantityCurr':         tool.quantityCurr,
+        'quantityMax':          tool.quantityMax,
+        'specialInstructions':  tool.specialInstructions,
+    }
+    return render(request, 'contentTool.html', context)
+
+# Form used for borrowing a tool from another user
+class borrowToolForm(forms.Form):
+
+        css             = forms.TextInput(attrs={'class':'text'})
+        reason          = forms.CharField(max_length = 500,widget=css)
+        timePeriod      = forms.CharField(max_length = 300,widget=css)
+        quantity        = forms.IntegerField(widget=css)
+
+# Form used for adding a tool to the database
+class toolForm(forms.Form):
+    css                 = forms.TextInput(attrs={'class':'text'})
+    name                = forms.CharField(max_length = 200,widget=css)
+    description         = forms.CharField(max_length = 300,widget=css)
+    #picture            = forms.CharField(max_length = 100) #add later -- too hard
+    quantityMax         = forms.IntegerField(widget=css)
+    specialInstructions = forms.CharField(max_length = 300,required=False,widget=css)
+    availability        = forms.BooleanField(required=False, initial=False)
+
+# Form used for updating a tool
+class updateToolForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        tool = kwargs.pop('my_arg')
+        super(updateToolForm, self).__init__(*args, **kwargs)
+
+        self.fields['name']                 = forms.CharField(max_length = 200,widget=forms.TextInput(attrs={'class':'text','value':tool.name}))
+        self.fields['description']          = forms.CharField(max_length = 300,widget=forms.TextInput(attrs={'class':'text','value':tool.description}))
+        #picture                            = forms.CharField(max_length = 100) #add later -- too hard
+        self.fields['quantityMax']          = forms.IntegerField(widget=forms.TextInput(attrs={'class':'text','value':tool.quantityMax}))
+        self.fields['specialInstructions']  = forms.CharField(max_length = 300,required=False,widget=forms.TextInput(attrs={'class':'text','value':tool.specialInstructions}))
+        self.fields['availability']         = forms.BooleanField(required=False, initial=tool.availability)

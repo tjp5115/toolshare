@@ -1,0 +1,24 @@
+# Create your views here.
+from django.shortcuts import render
+from tool.models import Tool
+from tool.views import toolForm
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+
+
+def index(request,username):
+	get_object_or_404(User, username=username)
+	template = 'contentToolList.html'
+	usernameID = User.objects.get(username=username).id
+	context = {
+		'user' : request.user,
+		'toolList' : request.user.get_profile().getToolList(),
+		'toolListOwned' : request.user.get_profile().getOwnedTools(),
+		'toolListBorrowed' : request.user.get_profile().getBorrowedTools(),
+
+		'numTools' : len(request.user.get_profile().getToolList()),
+		'numToolsOwned' : len(request.user.get_profile().getOwnedTools()),
+		'numToolsBorrowed' : len(request.user.get_profile().getBorrowedTools()),
+		'form': toolForm(),
+	}
+	return render(request,template,context)

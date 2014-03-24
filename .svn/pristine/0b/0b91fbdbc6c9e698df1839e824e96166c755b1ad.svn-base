@@ -1,0 +1,133 @@
+/*
+jquery selector stuff -- this is the magic
+*/
+$(document).ready(function(){
+	$('#tableToolList').tablesorter();
+	$(".updateTool").on("click", updateToolUpdateDiv);
+	$("#addTool").on("click", addToolUpdateDiv);
+	$(".borrowTool").on("click", borrowToolUpdateDiv);
+});
+/*
+dynamically fills the sendButtonUpdateTool form with the form data from its coresponding view
+    if valid submits 
+    otherwise displays error messages
+
+this javascript has to be in the document from my understanding. It will not load otherwise.
+*/
+function prepareBorrowToolForm(){
+
+    $('.fancybox-inner #sendbuttonBorrowTool').on("click",function(){
+        var form = jQuery(".fancybox-inner #toolBorrowForm");
+        form.submit(function (e) {
+            //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+            jQuery(".fancybox-inner #registration").load(
+                form.prop('action'),
+                form.serializeArray()
+            );
+            e.preventDefault();
+        });
+    });
+
+}
+/*
+dynamically fills the div addTool with an ajax call to its coreesponding view
+    basically magic
+*/
+function borrowToolUpdateDiv() {
+    var url = $(this).attr('href');
+    //alert(url);
+    jQuery("#toolFormBorrowContent").load(
+        url,
+        function(){
+            //alert('made it to inner function');
+            var updateData = $('#toolFormBorrowContent').html();
+            $.fancybox(updateData);
+            prepareBorrowToolForm();
+
+        }
+    );
+
+    return false;
+}
+/*
+dynamically fills the div addTool with an ajax call to its coreesponding view
+    basically magic
+*/
+function updateToolUpdateDiv() {
+    var url = $(this).attr('href');
+    //alert(url);
+    jQuery("#toolFormUpdateContent").load(
+        url,
+        function(){
+            //alert('made it to inner function');
+            var updateData = $('#toolFormUpdateContent').html();
+            $.fancybox(updateData);
+            prepareUpdateToolForm();
+
+        }
+    );
+
+    return false;
+}
+/*
+dynamically fills the sendButtonUpdateTool form with the form data from its coresponding view
+    if valid submits 
+    otherwise displays error messages
+
+this javascript has to be in the document from my understanding. It will not load otherwise.
+*/
+function prepareUpdateToolForm(){
+
+    $('.fancybox-inner #sendbuttonUpdateTool').on("click",function(){
+        var form = jQuery(".fancybox-inner #toolUpdateForm");
+        form.submit(function (e) {
+            //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+            jQuery(".fancybox-inner #registration").load(
+                form.prop('action'),
+                form.serializeArray()
+            );
+            e.preventDefault();
+        });
+    });
+
+}
+/*
+dynamically fills the sendButtonUpdateTool form with the form data from its coresponding view
+    if valid submits 
+    otherwise displays error messages
+
+this javascript has to be in the document from my understanding. It will not load otherwise.
+*/
+function prepareAddToolForm(){
+    $('.fancybox-inner #sendbuttonAddTool').on("click",function(){
+        var form = jQuery(".fancybox-inner #toolAddForm");
+        form.submit(function (e) {
+            //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+            jQuery(".fancybox-inner #registration").load(
+                form.prop('action'),
+                form.serializeArray()
+            );
+            e.preventDefault();
+        });
+    });
+}
+
+/*
+dynamically fills the div updateTool with an ajax call to its coreesponding view
+    basically magic
+*/
+function addToolUpdateDiv() {
+   // alert('wah');
+    var url = $(this).attr('href');
+    jQuery("#toolFormAddContent").load(
+        url,
+        function(){
+    //        alert('made it to inner function');
+            var updateData = $('#toolFormAddContent').html();
+            $.fancybox(updateData);
+            prepareAddToolForm();
+        }
+    );
+
+    return false;
+}

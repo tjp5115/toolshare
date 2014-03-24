@@ -1,0 +1,20 @@
+{% for tool in toolList %}	
+	{% if not guest %}
+	<p class='toolEdit'>
+	<span class='normFont'>Edit</span>:
+	<a href="{%url 'updateTool' username=user toolId=tool.id%}"> {{tool.name}}</a> 
+	</p>
+	{%else%}
+		<p class="toolAtri"><span class='bold'>Name: </span>{{tool.name}}</p>
+	{%endif%}
+	<p class="toolAtri"><span class='bold'>Quantity: </span>{{tool.quantityMax}}</p>
+	<p class="toolAtri"><span  class='bold'>Description: </span> {{tool.description}}</p>
+	<p class="toolAtri"><span  class='bold'>Special Instructions: </span> {{tool.specialInstructions}}</p>
+	<p class="toolAtri"><span  class='bold'>Available: </span> {{tool.availability}}</p>
+	<p class="toolAtri line">
+		{%if not guest%}
+			<span  class='bold'><a href="">DELETE TOOL</a></span>
+		{%endif%}
+		
+		</p>
+{% endfor%}

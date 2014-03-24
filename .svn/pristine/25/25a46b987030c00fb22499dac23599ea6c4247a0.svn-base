@@ -1,0 +1,48 @@
+
+
+
+<table id="background-image" summary="Meeting Results">
+    <thead>
+    	<tr>
+            <th scope="col">Name</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Description</th>
+        </tr>
+    </thead>
+    <tfoot>
+	    <td colspan="4">Special information about the tool not provided</td>
+        </tr>
+    </tfoot>
+    <tbody>
+	{% for tool in toolList %}	
+
+	
+
+    	<tr>
+   	     <td>	
+		{% if not guest %}
+		<span class='normFont'>Edit:</span>
+		<a href="{%url 'updateTool' username=user toolID=tool.id%}"> {{tool.name}}</a> 
+		{%else%}
+		{{tool.name}}
+		{%endif%}
+
+		</td>
+
+
+		<td>{{tool.quantityCurr}}</td>
+		<td>{{tool.description}}</td>
+		<td>
+		{%if not guest%}
+			<span  class='bold'><a href="">Delete Tool</a></span>
+		{%else%}
+		<span class='bold'><a href="{%url 'borrowTool' username=user toolID=tool.id%}">Borrow Tool</a></span>
+		{%endif%}
+		</td>
+        </tr>
+	{% endfor%}
+
+    </tbody>
+</table>
+		
+

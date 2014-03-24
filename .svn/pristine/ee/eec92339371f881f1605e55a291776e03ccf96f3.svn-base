@@ -1,0 +1,34 @@
+from django.conf.urls import patterns, include, url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+# Uncomment the next two lines to enable the admin:
+from django.contrib import admin
+from tool import views
+admin.autodiscover()
+
+urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'fourtran.views.home', name='home'),
+    # url(r'^fourtran/', include('fourtran.foo.urls')),
+
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+  	url(r'^',include('userProfile.urls')),
+    url(r'^(?P<username>\w+)/tools/', include('tool.urls')),
+    url(r'^(?P<username>\w+)/tools/', include('toolList.urls')),
+    url(r'^(?P<username>\w+)/shareZone/', include('shareZone.urls')),
+     url(r'^(?P<username>\w+)/sheds/', include('sheds.urls')),
+	url(r'^(?P<username>\w+)/edit/', include('userProfile.urls')),
+    url(r'^(?P<username>\w+)/notifications/', include('notifications.urls')),
+    
+
+	# tool pages
+	url(r'^tools/',include('tool.urls')),
+    
+    # Uncomment the next line to enable the admin:
+    url(r'^admin/', include(admin.site.urls)),
+)
+
+
+urlpatterns += staticfiles_urlpatterns()
+

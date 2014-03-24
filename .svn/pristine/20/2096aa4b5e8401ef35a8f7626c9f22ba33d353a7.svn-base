@@ -1,0 +1,72 @@
+/*
+jquery selector stuff -- this is the magic
+*/
+$(document).ready(function(){
+	$('#tableToolList').tablesorter();
+	$(".updateTool").on("click", updateDivForm);
+	$("#addTool").on("click", updateDivForm);
+	$(".borrowTool").on("click", updateDivForm);
+    $('.request').on('click',fancyLoadDiv);
+});
+/*
+dynamically fills the div addTool with an ajax call to its coresponding view
+    basically magic
+*/
+function fancyLoadDiv() {
+    var url = $(this).attr('href');
+    //alert(url);
+    jQuery("#fancyUpdateContent").load(
+        url,
+        function(){
+            //alert('made it to inner function');
+            var updateData = $('#fancyUpdateContent').html();
+            $.fancybox(updateData);
+        }
+    );
+    return false;
+}
+/*
+dynamically fills the div addTool with an ajax call to its coresponding view
+    basically magic
+*/
+function updateDivForm() {
+    var url = $(this).attr('href');
+    //alert(url);
+    jQuery("#fancyUpdateContent").load(
+        url,
+        function(){
+            //alert('made it to inner function');
+            var updateData = $('#fancyUpdateContent').html();
+            $.fancybox(updateData,
+            {
+                openEffect  : 'none',
+                closeEffect : 'none'
+            });
+            $(".timeStart").datepicker();
+            $(".timeEnd").datepicker();
+
+            prepareUpdateForm();
+        }
+    );
+
+    return false;
+}
+/*
+dynamically fills the form with the form data from its coresponding view
+    if valid submits 
+    otherwise displays error messages
+this javascript has to be in the document from my understanding. It will not load otherwise.
+*/
+function prepareUpdateForm(){
+    $('.fancybox-inner #sendbutton').on("click",function(){
+        var form = jQuery(".fancybox-inner #fancyForm");
+        form.submit(function (e) {
+            //jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+            jQuery(".fancybox-inner #registration").load(
+                form.prop('action'),
+                form.serializeArray()
+            );
+            e.preventDefault();
+        });
+    });
+}

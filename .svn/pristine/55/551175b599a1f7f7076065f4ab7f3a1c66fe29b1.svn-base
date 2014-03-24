@@ -1,0 +1,125 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from django.contrib import messages
+from tool.models import Tool
+from notifications.models import Notification
+#from shareZone.models import // when we create a shareZone model, add here
+
+# Create your models here.
+class UserProfile(models.Model):
+    url = models.URLField()
+    nameFirst = models.CharField(max_length = 200)
+    nameLast= models.CharField(max_length = 200)
+    home_address = models.TextField()
+    #phone_number = models.PhoneNumberField()
+    email = models.CharField(max_length = 200)
+    user = models.ForeignKey(User, unique=True)
+    #shareZone = models.shareZone // reference to shareZone would go here
+
+    def __str__(self):
+        return self.user.username + ": " + self.nameFirst + " " + self.nameLast
+
+    #insert into DB
+    def insert(post):
+        # Is the user already in the database?
+        if not User.objects.filter(username=post['username']).exists():
+            userDB = User.objects.create_user(post['username'], post['email'], post['password'])
+            print("UserDB = "+ str(userDB))
+            # Create the user
+            UserProfile.objects.create( \
+            nameFirst = post['nameFirst'], \
+            nameLast=post['nameLast'], \
+            home_address = post['home_address'], \
+            email = post['email'], \
+            user = userDB
+            )
+            # Assign / create the ShareZone
+            print("about to create")
+            mygroup, created = Group.objects.get_or_create(name=post['zipCode'])
+            userDB.groups.add(mygroup)
+            #messages.add_message(request,messages.INFO,"You joined a group!")
+            return True
+
+        else:
+            return False
+
+    #update the DB with user pref
+    def update(user, request):        
+        #user = request.user
+        user.nameFirst = request.POST['nameFirst']
+        user.nameLast = request.POST['nameLast']
+        user.home_address = request.POST['home_address']
+        user.email = request.POST['email']
+
+        user.save()
+
+    # Gets all of the tools the user is currently has possession of (borrowed or owned)
+    def getToolList(self):
+        return sorted(Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            ), key = lambda Tool: Tool.name)
+
+    # Gets all of the tools that the user owns (lent out or not)
+    def getOwnedTools(self):
+        return Tool.objects.all().filter(
+            ownerID = self.user.id)
+
+    # Gets all tools that the user is currently borrowing
+    def getBorrowedTools(self):
+        return Tool.objects.all().filter(
+                currentOwnerID = self.user.id
+            ).exclude(ownerID = self.user.id)
+
+    # Gets all tools that the user has lent out
+    def getLentTools(self):
+        return Tool.objects.all().filter(
+                ownerID = self.user.id
+            ).exclude(currentOwnerID = self.user.id)
+
+    # Gets all of the users in the user's shareZone, not including himself
+    def getShareZone(self):
+        return User.objects.all().filter(
+                groups__name = self.user.groups.all()[0]
+            ).exclude(username = self.user)
+
+    # Get notifications that a user is waiting on responses for
+    def getPendingRequests(self):
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).filter(
+                status = 'pending'
+            )#order_by('timeEnd')
+
+    # Get notifications a user has received and are pending
+    def getReceivedRequests(self):
+        return Notification.objects.all().filter(
+                receiverID = self.user.id
+            ).filter(
+                status = 'pending'
+            )#.order_by('timeEnd')
+
+    # Get notifications a user has sent and has received responses to
+    def getResponses(self):
+        print(self.user.id)
+        print([s for s in list(Notification.objects.all())])
+        return Notification.objects.all().filter(
+                senderID = self.user.id
+            ).exclude(
+                status = 'pending'
+            ).exclude(
+                status = 'archived'
+            )#.order_by('timeEnd')
+
+    # Get all archived notifications associated with a user
+    def getArchive(self):
+        return list(Notification.objects.all().filter(
+                status = 'archived'
+        ).filter(
+            senderID = self.user.id
+        )).join(
+            list(Notification.objects.all().filter(
+                status = 'archived'
+            ).filter(
+                receiverID = self.user.id
+            )))#.order_by('timeEnd')
